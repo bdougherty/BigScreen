@@ -1,34 +1,11 @@
 # BigScreen
 
-A simple library for using the JavaScript Full Screen API.
+A simple library for using the JavaScript Fullscreen API.
 
 
 ## Why should I use it?
 
-### Before BigScreen
-
-```js
-if (element.requestFullscreen) {
-    element.requestFullscreen();
-}
-else if (element.webkitRequestFullscreen) {
-    element.webkitRequestFullscreen();
-}
-else if (element.webkitRequestFullScreen) {
-    element.webkitRequestFullScreen();
-}
-else if (element.mozRequestFullScreen) {
-    element.mozRequestFullScreen();
-}
-```
-
-## After BigScreen
-
-```js
-BigScreen.request(element);
-```
-
-BigScreen also smoothes out a couple browser bugs for you (the real before code is a little more complicated).
+BigScreen makes it easy to use full screen on your site or in your app. It smoothes out browser inconsistencies and bugs, especially if the element you're working with is inside of an `<iframe>`. It will also intelligently fall back to the older video full screen API if the element contains a `<video>` and the older API is available.
 
 
 ## Download
@@ -45,6 +22,9 @@ BigScreen is ~1 kb minified and gzipped. [Download it now](https://raw.github.co
 These browsers are also supported for video only:
 
 * Safari 5.0
+
+
+## [Demo](http://brad.is/coding/BigScreen/)
 
 
 ## How do I use it?
@@ -91,9 +71,6 @@ BigScreen.onexit = function() {
 ```
 
 
-## [Demo](http://brad.is/coding/BigScreen/)
-
-
 ## Documentation
 
 ### BigScreen.request(element)
@@ -121,6 +98,10 @@ Override to get notified when an element enters full screen. `BigScreen.element`
 ### BigScreen.onexit()
 
 Override to get notified when fully exiting full screen (there are no more elements in full screen).
+
+### BigScreen.onerror()
+
+Override to get notified if there is an error sending an element into full screen. The value of `this` will be the element that generated the error.
 
 ### BigScreen.element
 
