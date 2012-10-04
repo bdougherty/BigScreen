@@ -1,6 +1,6 @@
 /*!
 * BigScreen
-* v1.0.0 - 2012-08-26
+* v1.0.1 - 2012-10-04
 * https://github.com/bdougherty/BigScreen
 * Copyright 2012 Brad Dougherty; Apache 2.0 License
 */
@@ -113,6 +113,7 @@
 	}
 
 	var lastFullscreenVideo = null;
+	var hasControls = null;
 
 	// Check to see if there is a <video> and if the video has webkitEnterFullscreen, try it.
 	// Metadata needs to be loaded for it to work, so load() if we need to.
@@ -125,11 +126,13 @@
 					videoElement.addEventListener('loadedmetadata', function onMetadataLoaded() {
 						videoElement.removeEventListener('loadedmetadata', onMetadataLoaded, false);
 						videoElement.webkitEnterFullscreen();
+						hasControls = !!videoElement.getAttribute('controls');
 					}, false);
 					videoElement.load();
 				}
 				else {
 					videoElement.webkitEnterFullscreen();
+					hasControls = !!videoElement.getAttribute('controls');
 				}
 
 				lastFullscreenVideo = videoElement;
@@ -187,6 +190,16 @@
 	}, 100, true);
 
 	var callOnExit = debounce(function() {
+		// Fix a bug present in some versions of WebKit that will show the native controls when
+		// exiting, even if they were not showing before.
+		if (lastFullscreenVideo && !hasControls) {
+			lastFullscreenVideo.setAttribute('controls', 'controls');
+			lastFullscreenVideo.removeAttribute('controls');
+		}
+
+		lastFullscreenVideo = null;
+		hasControls = null;
+
 		bigscreen.onexit.call(bigscreen);
 	}, 200, true);
 
@@ -240,7 +253,6 @@
 		exit: function() {
 			removeWindowResizeHack(); // remove here if exit is called manually, so two onexit events are not fired
 			document[fn.exit]();
-			lastFullscreenVideo = null;
 		},
 		toggle: function(element) {
 			if (bigscreen.element) {
