@@ -1,4 +1,5 @@
-/*global self Element */
+/*jshint browser:true */
+/*global Element */
 (function(window, document, iframe) {
 	'use strict';
 
@@ -115,6 +116,18 @@
 
 		if (videoElement && videoElement.webkitEnterFullscreen) {
 			try {
+				// We can tell when it enters and exits full screen on iOS using these events.
+				// Desktop Safari will fire the normal fullscreenchange event.
+				videoElement.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
+					videoElement.removeEventListener('webkitbeginfullscreen', onBeginFullscreen, false);
+					callOnEnter(videoElement);
+				}, false);
+
+				videoElement.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
+					videoElement.removeEventListener('webkitendfullscreen', onEndFullscreen, false);
+					callOnExit(videoElement);
+				}, false);
+
 				if (videoElement.readyState < videoElement.HAVE_METADATA) {
 					videoElement.addEventListener('loadedmetadata', function onMetadataLoaded() {
 						videoElement.removeEventListener('loadedmetadata', onMetadataLoaded, false);
@@ -130,8 +143,6 @@
 
 				lastFullscreenVideo = videoElement;
 				videoElement.play();
-				callOnEnter();
-				setTimeout(checkDisplayingFullscreen, 500);
 			}
 			catch (err) {
 				bigscreen.onerror.call(videoElement);
@@ -141,18 +152,6 @@
 		}
 
 		bigscreen.onerror.call(element);
-	}
-
-	// Poll for changes to webkitDisplayingFullscreen so that we can fire BigScreen.exit()
-	// if a <video> comes out of full screen when using the webkitEnterFullscreen fallback.
-	function checkDisplayingFullscreen() {
-		if (lastFullscreenVideo) {
-			if (lastFullscreenVideo.webkitDisplayingFullscreen === true) {
-				return setTimeout(checkDisplayingFullscreen, 500);
-			}
-
-			callOnExit();
-		}
 	}
 
 	// There is a bug in WebKit that will not fire a fullscreenchange event when the element exiting
@@ -180,7 +179,7 @@
 
 	var callOnEnter = debounce(function() {
 		bigscreen.onenter.call(bigscreen);
-	}, 100, true);
+	}, 500, true);
 
 	var callOnExit = debounce(function() {
 		// Fix a bug present in some versions of WebKit that will show the native controls when
@@ -194,7 +193,7 @@
 		hasControls = null;
 
 		bigscreen.onexit.call(bigscreen);
-	}, 200, true);
+	}, 500, true);
 
 	var bigscreen = {
 		request: function(element) {
@@ -280,7 +279,7 @@
 
 	try {
 		Object.defineProperties(bigscreen, {
-			'element': {
+			element: {
 				enumerable: true,
 				get: function() {
 					if (lastFullscreenVideo && lastFullscreenVideo.webkitDisplayingFullscreen) {
@@ -290,7 +289,7 @@
 					return document[fn.element] || null;
 				}
 			},
-			'enabled': {
+			enabled: {
 				enumerable: true,
 				get: function() {
 					// Safari 5.1 supports full screen, but doesn't have a fullScreenEnabled property,
