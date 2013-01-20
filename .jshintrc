@@ -1,0 +1,13 @@
+{
+	"evil": true,
+	"regexdash": true,
+	"browser": true,
+	"wsh": true,
+	"trailing": true,
+	"sub": true,
+	"newcap": false,
+	"smarttabs": true,
+	"globals": {
+		"Element": true
+	}
+}
