@@ -1,5 +1,5 @@
 /*! BigScreen
- * v1.0.1 - 2013-01-20
+ * v1.0.2 - 2013-01-20
  * https://github.com/bdougherty/BigScreen
  * Copyright 2013 Brad Dougherty; Apache 2.0 License
  */
