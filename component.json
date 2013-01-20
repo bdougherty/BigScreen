@@ -1,0 +1,6 @@
+{
+	"name": "BigScreen",
+	"version": "1.0.1",
+	"main": "./bigscreen.js",
+	"dependencies": {}
+}
