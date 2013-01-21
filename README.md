@@ -10,7 +10,7 @@ BigScreen makes it easy to use full screen on your site or in your app. It smoot
 
 ## Download
 
-BigScreen is ~1 kb minified and gzipped. [Download it now](https://raw.github.com/bdougherty/BigScreen/master/bigscreen.min.js).
+BigScreen is ~1.4 kb minified and gzipped. [Download it now](https://raw.github.com/bdougherty/BigScreen/master/bigscreen.min.js).
 
 
 ## Supported Browsers
@@ -137,6 +137,13 @@ Safari 5.0 and iOS 4.2+ support putting `<video>` into full screen. `BigScreen.e
 
 This function will report `false` if there is no child `<video>`, or if it is not possible to put a `<video>` in full screen. It will report `'maybe'` if it is possible, but the video's metadata has not been loaded, and `true` if it will be able to enter full screen.
 
+
+## Version History
+
+* 2.0.0 - 01/21/2013 - Add individual element callbacks and clean up error handling
+* 1.0.2 - 12/26/2012 - Use `webkitbeginfullscreen` and `webkitendfullscreen` on iOS instead of polling
+* 1.0.1 - 10/04/2012 - Fix for video controls bug in WebKit
+* 1.0.0 - 08/26/2012 - Initial Release
 
 ## Known Fullscreen API Issues
 
