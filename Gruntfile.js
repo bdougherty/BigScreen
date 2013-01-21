@@ -39,7 +39,18 @@ module.exports = function(grunt) {
 			options: {
 				banner: '// <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %> - <%= _.pluck(pkg.licenses, "type").join(", ") %> License\n'
 			},
-			all: {
+			unminified: {
+				options: {
+					banner: '',
+					mangle: false,
+					compress: false,
+					preserveComments: 'some',
+					beautify: true
+				},
+				src: ['bigscreen.js'],
+				dest: 'bigscreen.js'
+			},
+			minified: {
 				src: ['bigscreen.js'],
 				dest: 'bigscreen.min.js'
 			}
@@ -53,6 +64,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	grunt.registerTask('default', ['jshint:dev']);
-	grunt.registerTask('release', ['jshint:beforeconcat', 'concat', 'jshint:afterconcat', 'uglify']);
+	grunt.registerTask('release', ['jshint:beforeconcat', 'concat', 'jshint:afterconcat', 'uglify:unminified', 'uglify:minified']);
 
 };
