@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>BigScreen Tests</title>
+	<link rel="stylesheet" href="libs/mocha.css">
+	<script src="libs/sinon.js"></script>
+	<script src="libs/chai.js"></script>
+	<script src="libs/sinon-chai.js"></script>
+	<script src="libs/mocha.js"></script>
+	<script>
+		window.mocha.setup({ ui: 'bdd' });
+		window.expect = window.chai.expect;
+	</script>
+	<script src="../src/bigscreen.js"></script>
+	<script src="bigscreen-test.js"></script>
+</head>
+<body>
+	<div id="mocha"></div>
+	<script>
+		if (window.mochaPhantomJS) {
+			window.mochaPhantomJS.run();
+		}
+		else {
+			window.mocha.run();
+		}
+	</script>
+</body>
+</html>
