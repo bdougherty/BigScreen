@@ -6,11 +6,21 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		jshint: {
-			options: {
-				jshintrc: '.jshintrc'
-			},
-			all: {
+			options: grunt.file.readJSON('.jshintrc'),
+			dev: {
 				src: ['Gruntfile.js', 'src/**/*.js']
+			},
+			beforeconcat: {
+				options: {
+					devel: false
+				},
+				src: ['Gruntfile.js', 'src/**/*.js']
+			},
+			afterconcat: {
+				options: {
+					devel: false
+				},
+				src: ['bigscreen.js']
 			}
 		},
 
@@ -40,8 +50,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 
-	grunt.registerTask('default', ['jshint']);
-	grunt.registerTask('release', ['jshint', 'concat', 'uglify']);
+	grunt.registerTask('default', ['jshint:dev']);
+	grunt.registerTask('release', ['jshint:beforeconcat', 'concat', 'jshint:afterconcat', 'uglify']);
 
 };
