@@ -156,4 +156,4 @@ There is currently a bug in Safari (was in WebKit, but has been fixed and has be
 
 ## License
 
-BigScreen is licensed under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license. Copyright 2012 Brad Dougherty.
+BigScreen is licensed under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license. Copyright 2013 Brad Dougherty.
