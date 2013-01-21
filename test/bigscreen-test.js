@@ -17,6 +17,31 @@ var enabledProp = (function() {
     return null;
 }());
 
+function createSource(url, type) {
+    var source = document.createElement('source');
+    source.src = url;
+    source.type = type;
+    return source;
+}
+
+function createVideo(preload) {
+    var video = document.createElement('video');
+    video.width = '50';
+    video.height = '50';
+    video.preload = preload ? 'metadata' : 'none';
+
+    var mp4 = createSource('http://junk.bradd.me/curiosity.mp4', 'video/mp4');
+    var webm = createSource('http://junk.bradd.me/curiosity.webm', 'video/webm');
+
+    video.appendChild(mp4);
+    video.appendChild(webm);
+
+    var wrapper = document.createElement('div');
+    wrapper.appendChild(video);
+
+    return wrapper;
+}
+
 describe('BigScreen', function() {
 
     it('exists in the global space', function() {
@@ -46,13 +71,16 @@ describe('BigScreen', function() {
     });
 
     describe('element', function() {
+
         it('should have null for .element by default', function() {
             expect(BigScreen).to.have.property('element', null);
         });
+
     });
 
     describe('enabled', function() {
-        it('has the proper value for enabled', function() {
+
+        it('should have the expected value', function() {
             // If the spec fullscreen api exists and we're not in an iframe, it should be enabled
             if (enabledProp === null && document.webkitCancelFullScreen) {
                 expect(BigScreen).to.have.property('enabled', self === top);
@@ -62,41 +90,78 @@ describe('BigScreen', function() {
                 expect(BigScreen).to.have.property('enabled', !!enabledProp);
             }
         });
+
     });
 
-    xdescribe('videoEnabled', function() {
+    describe('videoEnabled', function() {
 
-        // @todo - need two checks here: one with an element that has a child video, one without
-        it('should be the same as enabled', function() {
-            var enabled = BigScreen.videoEnabled();
-            // If the spec fullscreen api exists and we're not in an iframe, it should be enabled
-            if (enabledProp === false && document.webkitCancelFullScreen) {
-                if (self === top) {
-                    expect(enabled).to.be.true;
-                }
-                else {
-                    expect(enabled).to.equal('maybe');
-                }
+        before(function() {
+            this.wrapper = createVideo();
+            document.body.appendChild(this.wrapper);
+
+            this.wrapperWithVideo = createVideo(true);
+            document.body.appendChild(this.wrapperWithVideo);
+        });
+
+        it('should be the same as enabled for an element without a child video', function() {
+            var videoEnabled = BigScreen.videoEnabled(document.getElementById('mocha'));
+            expect(videoEnabled).to.equal(BigScreen.enabled);
+        });
+
+        it('should equal "maybe" if there is a compatible child video and in WebKit', function() {
+            var videoEnabled = BigScreen.videoEnabled(this.wrapper);
+            var video = this.wrapper.getElementsByTagName('video')[0];
+
+            if (BigScreen.enabled) {
+                expect(videoEnabled).to.be.true;
             }
-            // Otherwise it should match the value of the browser property
-            else if (enabledProp) {
-                expect(enabled).to.be.true;
+            else if (video.webkitSupportsFullscreen === undefined) {
+                expect(videoEnabled).to.be.false;
             }
             else {
-                expect(enabled).to.be.false;
+                expect(videoEnabled).to.be.equal('maybe');
             }
+        });
+
+        xit('should equal true if there is a compatible child video with metadata loaded and in WebKit', function() {
+            var videoEnabled = BigScreen.videoEnabled(this.wrapperWithVideo);
+            var video = this.wrapperWithVideo.getElementsByTagName('video')[0];
+
+            if (BigScreen.enabled || video.webkitSupportsFullscreen !== undefined) {
+                expect(videoEnabled).to.be.true;
+            }
+            else {
+                expect(videoEnabled).to.be.false;
+            }
+        });
+
+        after(function() {
+            document.body.removeChild(this.wrapper);
+            document.body.removeChild(this.wrapperWithVideo);
         });
 
     });
 
     describe('request(documentElement)', function() {
 
+        function getExpectedError() {
+            if (enabledProp === true || document.documentElement.webkitRequestFullScreen) {
+                return 'not_allowed';
+            }
+
+            if (enabledProp === false) {
+                return 'not_enabled';
+            }
+
+            return 'not_supported';
+        }
+
         it('should call global error handler if request fails', function(done) {
             var enterSpy = sinon.spy(BigScreen, 'onenter');
             var changeSpy = sinon.spy(BigScreen, 'onchange');
             var exitSpy = sinon.spy(BigScreen, 'onexit');
 
-            var expectedError = enabledProp === true ? 'not_allowed' : enabledProp === false ? 'not_enabled' : 'not_supported';
+            var expectedError = getExpectedError();
 
             var oldOnError = BigScreen.onerror;
             var errorSpy = sinon.spy(function() {
@@ -105,8 +170,8 @@ describe('BigScreen', function() {
                 expect(exitSpy).to.not.have.been.called;
 
                 expect(errorSpy).to.have.been.calledOnce;
-                expect(errorSpy).to.have.been.calledWith(document.documentElement, expectedError);
                 console.log('error reason:', errorSpy.getCall(0).args[1]);
+                expect(errorSpy).to.have.been.calledWith(document.documentElement, expectedError);
 
                 BigScreen.onenter.restore();
                 BigScreen.onchange.restore();
@@ -124,7 +189,7 @@ describe('BigScreen', function() {
             var enterSpy = sinon.spy();
             var exitSpy = sinon.spy();
 
-            var expectedError = enabledProp === true ? 'not_allowed' : enabledProp === false ? 'not_enabled' : 'not_supported';
+            var expectedError = getExpectedError();
 
             var errorSpy = sinon.spy(function() {
                 expect(enterSpy).to.not.have.been.called;
@@ -143,7 +208,7 @@ describe('BigScreen', function() {
             var enterSpy = sinon.spy();
             var exitSpy = sinon.spy();
 
-            var expectedError = enabledProp === true ? 'not_allowed' : enabledProp === false ? 'not_enabled' : 'not_supported';
+            var expectedError = getExpectedError();
 
             function errorCallback() {
                 expect(errorSpy).to.have.been.calledOnce;
