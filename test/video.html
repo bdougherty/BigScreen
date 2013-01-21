@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<title>BigScreen Video Example</title>
+<link rel="stylesheet" href="src/common.css">
+
+<div id="player">
+	<button id="toggle">Enter</button>
+	<video id="video" preload="metadata" poster="src/thumb.jpg">
+		<source src="http://junk.bradd.me/curiosity.mp4" type="video/mp4"></source>
+		<source src="http://junk.bradd.me/curiosity.webm" type="video/webm"></source>
+	</video>
+</div>
+<script src="../src/bigscreen.js"></script>
+<script src="libs/common.js"></script>
+<script>
+
+	function enterCallback(actualElement) {
+		sendMessage({
+			scope: 'video',
+			name: 'enter',
+			id: this.id,
+			actualId: actualElement.id
+		});
+
+		this.classList.remove('zoom-in');
+		this.classList.add('zoom-out');
+		button.innerHTML = 'Exit';
+	}
+
+	function exitCallback() {
+		sendMessage({
+			scope: 'video',
+			name: 'exit'
+		});
+
+		this.classList.remove('zoom-out');
+		this.classList.add('zoom-in');
+		button.innerHTML = 'Enter';
+	}
+
+	function errorCallback(reason) {
+		sendMessage({
+			scope: 'video',
+			name: 'error',
+			reason: reason,
+			id: this.id
+		});
+	}
+
+	var button = document.getElementById('toggle');
+	var player = document.getElementById('player');
+
+	button.addEventListener('click', function() {
+		BigScreen.toggle(player, enterCallback, exitCallback, errorCallback);
+	}, false);
+
+</script>
