@@ -133,7 +133,7 @@
 			return true;
 		}
 
-		return callOnError('not_supported', element);
+		return callOnError(fn.request === undefined ? 'not_supported' : 'not_enabled', element);
 	}
 
 	// There is a bug in older WebKit that will not fire a fullscreenchange event when the element exiting
@@ -214,11 +214,13 @@
 	};
 
 	var callOnError = function(reason, element) {
-		var obj = elements.pop();
-		element = element || obj.element;
+		if (elements.length > 0) {
+			var obj = elements.pop();
+			element = element || obj.element;
 
-		obj.error.call(element, reason);
-		bigscreen.onerror(element, reason);
+			obj.error.call(element, reason);
+			bigscreen.onerror(element, reason);
+		}
 	};
 
 	var bigscreen = {
@@ -266,12 +268,20 @@
 			}
 
 			try {
-				element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
-
-				// Safari 5.1 incorrectly states that it allows keyboard input when it doesn't
-				if (!document[fn.element]) {
+				// Safari doesn't actually support keyboard support
+				if (/5\.1[\.\d]* Safari/.test(navigator.userAgent)) {
 					element[fn.request]();
 				}
+				else {
+					element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+				}
+
+				// If there's no element after 100ms, it didn't work
+				setTimeout(function() {
+					if (!document[fn.element]) {
+						callOnError(iframe ? 'not_enabled' : 'not_allowed', element);
+					}
+				}, 100);
 			}
 			catch (err) {
 				callOnError('not_enabled', element);
@@ -369,9 +379,7 @@
 
 	if (fn.error) {
 		document.addEventListener(fn.error, function onFullscreenError(event) {
-			if (elements.length > 0) {
-				callOnError('not_allowed');
-			}
+			callOnError('not_allowed');
 		}, false);
 	}
 
