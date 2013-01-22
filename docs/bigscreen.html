@@ -1,0 +1,334 @@
+<!DOCTYPE html>  <html> <head>   <title>bigscreen.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               bigscreen.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>A library to make it easier to use the JavaScript Fullscreen API.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nb">window</span><span class="p">,</span> <span class="nb">document</span><span class="p">,</span> <span class="nx">iframe</span><span class="p">)</span> <span class="p">{</span>
+  <span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
+
+  <span class="kd">var</span> <span class="nx">keyboardAllowed</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">Element</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span> <span class="o">&amp;&amp;</span> <span class="s1">&#39;ALLOW_KEYBOARD_INPUT&#39;</span> <span class="k">in</span> <span class="nx">Element</span><span class="p">;</span>
+
+  <span class="kd">var</span> <span class="nx">fn</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">map</span> <span class="o">=</span> <span class="p">[</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Properties/events/functions as defined in the spec.
+Currently implemented in Opera.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="p">{</span>
+        <span class="nx">request</span><span class="o">:</span> <span class="s1">&#39;requestFullscreen&#39;</span><span class="p">,</span>
+        <span class="nx">exit</span><span class="o">:</span> <span class="s1">&#39;exitFullscreen&#39;</span><span class="p">,</span>
+        <span class="nx">enabled</span><span class="o">:</span> <span class="s1">&#39;fullscreenEnabled&#39;</span><span class="p">,</span>
+        <span class="nx">element</span><span class="o">:</span> <span class="s1">&#39;fullscreenElement&#39;</span><span class="p">,</span>
+        <span class="nx">change</span><span class="o">:</span> <span class="s1">&#39;fullscreenchange&#39;</span><span class="p">,</span>
+        <span class="nx">error</span><span class="o">:</span> <span class="s1">&#39;fullscreenerror&#39;</span>
+      <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Properties/events/functions in newer versions of WebKit (Chrome and Safari 6).
+_Note the lowercase 's' in Fulscreen (to match the spec).</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="p">{</span>
+        <span class="nx">request</span><span class="o">:</span> <span class="s1">&#39;webkitRequestFullscreen&#39;</span><span class="p">,</span>
+        <span class="nx">exit</span><span class="o">:</span> <span class="s1">&#39;webkitExitFullscreen&#39;</span><span class="p">,</span>
+        <span class="nx">enabled</span><span class="o">:</span> <span class="s1">&#39;webkitFullscreenEnabled&#39;</span><span class="p">,</span>
+        <span class="nx">element</span><span class="o">:</span> <span class="s1">&#39;webkitFullscreenElement&#39;</span><span class="p">,</span>
+        <span class="nx">change</span><span class="o">:</span> <span class="s1">&#39;webkitfullscreenchange&#39;</span><span class="p">,</span>
+        <span class="nx">error</span><span class="o">:</span> <span class="s1">&#39;webkitfullscreenerror&#39;</span>
+      <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Properties/events/functions for older WebKit (Safari 5.1).
+<em>Note the capital 'S' in FullScreen.</em></p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="p">{</span>
+        <span class="nx">request</span><span class="o">:</span> <span class="s1">&#39;webkitRequestFullScreen&#39;</span><span class="p">,</span>
+        <span class="nx">exit</span><span class="o">:</span> <span class="s1">&#39;webkitCancelFullScreen&#39;</span><span class="p">,</span>
+        <span class="nx">element</span><span class="o">:</span> <span class="s1">&#39;webkitCurrentFullScreenElement&#39;</span><span class="p">,</span>
+        <span class="nx">change</span><span class="o">:</span> <span class="s1">&#39;webkitfullscreenchange&#39;</span><span class="p">,</span>
+        <span class="nx">error</span><span class="o">:</span> <span class="s1">&#39;webkitfullscreenerror&#39;</span>
+      <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Properties/events/functions for Firefox 10+.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="p">{</span>
+        <span class="nx">request</span><span class="o">:</span> <span class="s1">&#39;mozRequestFullScreen&#39;</span><span class="p">,</span>
+        <span class="nx">exit</span><span class="o">:</span> <span class="s1">&#39;mozCancelFullScreen&#39;</span><span class="p">,</span>
+        <span class="nx">enabled</span><span class="o">:</span> <span class="s1">&#39;mozFullScreenEnabled&#39;</span><span class="p">,</span>
+        <span class="nx">element</span><span class="o">:</span> <span class="s1">&#39;mozFullScreenElement&#39;</span><span class="p">,</span>
+        <span class="nx">change</span><span class="o">:</span> <span class="s1">&#39;mozfullscreenchange&#39;</span><span class="p">,</span>
+        <span class="nx">error</span><span class="o">:</span> <span class="s1">&#39;mozfullscreenerror&#39;</span>
+      <span class="p">}</span>
+    <span class="p">];</span>
+
+    <span class="kd">var</span> <span class="nx">fullscreen</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">testElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;video&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Loop over each set of properties/events/functions to find the set that has
+a working requestFullscreen function. Double-check that the rest of the
+functions and properties actually do exist, and if they don't, delete them.
+Skip checking events events though, because Opera reports document.onfullscreenerror
+as undefined instead of null.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">map</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">map</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">request</span> <span class="k">in</span> <span class="nx">testElement</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fullscreen</span> <span class="o">=</span> <span class="nx">map</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">fullscreen</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">item</span> <span class="o">!==</span> <span class="s1">&#39;change&#39;</span> <span class="o">&amp;&amp;</span> <span class="nx">item</span> <span class="o">!==</span> <span class="s1">&#39;error&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="nx">fullscreen</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span> <span class="k">in</span> <span class="nb">document</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="nx">fullscreen</span><span class="p">[</span><span class="nx">item</span><span class="p">]</span> <span class="k">in</span> <span class="nx">testElement</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">delete</span> <span class="nx">fullscreen</span><span class="p">[</span><span class="nx">item</span><span class="p">];</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">testElement</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="nx">fullscreen</span><span class="p">;</span>
+  <span class="p">}());</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Find a child video in the element passed.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">_getVideo</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">videoElement</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">===</span> <span class="s1">&#39;VIDEO&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">videoElement</span> <span class="o">=</span> <span class="nx">element</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">videos</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;video&#39;</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">videos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">videoElement</span> <span class="o">=</span> <span class="nx">videos</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">videoElement</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kd">var</span> <span class="nx">lastVideoElement</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">hasControls</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">emptyFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span>
+  <span class="kd">var</span> <span class="nx">elements</span> <span class="o">=</span> <span class="p">[];</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Attempt to put a child video into full screen using webkitEnterFullscreen.
+The metadata must be loaded in order for it to work, so load it automatically
+if it isn't already.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">videoEnterFullscreen</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">videoElement</span> <span class="o">=</span> <span class="nx">_getVideo</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">videoElement</span> <span class="o">&amp;&amp;</span> <span class="nx">videoElement</span><span class="p">.</span><span class="nx">webkitEnterFullscreen</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">try</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>We can tell when the video enters and exits full screen on iOS using the <code>webkitbeginfullscreen</code>
+and <code>webkitendfullscreen</code> events. Desktop Safari and Chrome will fire the normal <code>fullscreenchange</code>
+event instead.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">videoElement</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;webkitbeginfullscreen&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">onBeginFullscreen</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">videoElement</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;webkitbeginfullscreen&#39;</span><span class="p">,</span> <span class="nx">onBeginFullscreen</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+          <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onchange</span><span class="p">(</span><span class="nx">videoElement</span><span class="p">);</span>
+          <span class="nx">callOnEnter</span><span class="p">(</span><span class="nx">videoElement</span><span class="p">);</span>
+        <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+
+        <span class="nx">videoElement</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;webkitendfullscreen&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">onEndFullscreen</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">videoElement</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;webkitendfullscreen&#39;</span><span class="p">,</span> <span class="nx">onEndFullscreen</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+          <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onchange</span><span class="p">();</span>
+          <span class="nx">callOnExit</span><span class="p">();</span>
+        <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">videoElement</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">&lt;</span> <span class="nx">videoElement</span><span class="p">.</span><span class="nx">HAVE_METADATA</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">videoElement</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;loadedmetadata&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">onMetadataLoaded</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">videoElement</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;loadedmetadata&#39;</span><span class="p">,</span> <span class="nx">onMetadataLoaded</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+            <span class="nx">videoElement</span><span class="p">.</span><span class="nx">webkitEnterFullscreen</span><span class="p">();</span>
+            <span class="nx">hasControls</span> <span class="o">=</span> <span class="o">!!</span><span class="nx">videoElement</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">&#39;controls&#39;</span><span class="p">);</span>
+          <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+          <span class="nx">videoElement</span><span class="p">.</span><span class="nx">load</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">videoElement</span><span class="p">.</span><span class="nx">webkitEnterFullscreen</span><span class="p">();</span>
+          <span class="nx">hasControls</span> <span class="o">=</span> <span class="o">!!</span><span class="nx">videoElement</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">&#39;controls&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="nx">lastVideoElement</span> <span class="o">=</span> <span class="nx">videoElement</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">callOnError</span><span class="p">(</span><span class="s1">&#39;not_supported&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">callOnError</span><span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">request</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">?</span> <span class="s1">&#39;not_supported&#39;</span> <span class="o">:</span> <span class="s1">&#39;not_enabled&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>There is a bug in older versions of WebKit that will fire <code>webkitfullscreenchange</code> twice when
+entering full screen from inside an iframe, and won't fire it when exiting. We can listen for
+a resize event once we enter to tell when it returns to normal size (and thus has exited full
+screen). See the <a href="rdar://11927884">Safari bug</a>.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">resizeExitHack</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">callOnExit</span><span class="p">();</span>
+      <span class="nx">removeWindowResizeHack</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Add the listener for the resize hack, but only when inside an iframe in WebKit.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">addWindowResizeHack</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">iframe</span> <span class="o">&amp;&amp;</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">change</span> <span class="o">===</span> <span class="s1">&#39;webkitfullscreenchange&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;resize&#39;</span><span class="p">,</span> <span class="nx">resizeExitHack</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nx">removeWindowResizeHack</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">iframe</span> <span class="o">&amp;&amp;</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">change</span> <span class="o">===</span> <span class="s1">&#39;webkitfullscreenchange&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;resize&#39;</span><span class="p">,</span> <span class="nx">resizeExitHack</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kd">var</span> <span class="nx">callOnEnter</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">actualElement</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Return if the element entering has actually entered already. In older WebKit versions the
+browser will fire 2 <code>webkitfullscreenchange</code> events when entering full screen from inside an
+iframe. This is the result of the same bug as the resizeExitHack.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">lastElement</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">[</span><span class="nx">elements</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">((</span><span class="nx">actualElement</span> <span class="o">===</span> <span class="nx">lastElement</span><span class="p">.</span><span class="nx">element</span> <span class="o">||</span> <span class="nx">actualElement</span> <span class="o">===</span> <span class="nx">lastVideoElement</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">lastElement</span><span class="p">.</span><span class="nx">hasEntered</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Call the global enter handler only if this is the first element.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">elements</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onenter</span><span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>Call the stored callback for the request call and record that we did so we don't do it
+again if there is a duplicate call (see above).</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">lastElement</span><span class="p">.</span><span class="nx">enter</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">lastElement</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="nx">actualElement</span> <span class="o">||</span> <span class="nx">lastElement</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+    <span class="nx">lastElement</span><span class="p">.</span><span class="nx">hasEntered</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="kd">var</span> <span class="nx">callOnExit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>Fix a bug present in some versions of WebKit that will show the native controls when
+exiting, even if they were not showing before.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">lastVideoElement</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">hasControls</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">lastVideoElement</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="s1">&#39;controls&#39;</span><span class="p">,</span> <span class="s1">&#39;controls&#39;</span><span class="p">);</span>
+      <span class="nx">lastVideoElement</span><span class="p">.</span><span class="nx">removeAttribute</span><span class="p">(</span><span class="s1">&#39;controls&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">lastVideoElement</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="nx">hasControls</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>Check to make sure that the element exists. This function will get called a second
+time from the iframe resize hack.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">exit</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p>When the browser has fully exited full screen, make sure to loop
+through and call the rest of the callbacks and then the global exit.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">elements</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">element</span><span class="p">.</span><span class="nx">exit</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">elements</span> <span class="o">=</span> <span class="p">[];</span>
+
+        <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onexit</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>Make a callback to the error handlers and clear the element from the stack when
+an error occurs.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">callOnError</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">reason</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">elements</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+      <span class="nx">element</span> <span class="o">=</span> <span class="nx">element</span> <span class="o">||</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">element</span><span class="p">;</span>
+
+      <span class="nx">obj</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">reason</span><span class="p">);</span>
+      <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onerror</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">reason</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="kd">var</span> <span class="nx">bigscreen</span> <span class="o">=</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>request</h3>
+
+<p>The meat of BigScreen is here. Run through a bunch of checks to try to get
+something into full screen that's a child of the element passed in.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">request</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">enterCallback</span><span class="p">,</span> <span class="nx">exitCallback</span><span class="p">,</span> <span class="nx">errorCallback</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">element</span> <span class="o">=</span> <span class="nx">element</span> <span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">;</span>
+
+      <span class="nx">elements</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+        <span class="nx">element</span><span class="o">:</span> <span class="nx">element</span><span class="p">,</span>
+        <span class="nx">enter</span><span class="o">:</span> <span class="nx">enterCallback</span> <span class="o">||</span> <span class="nx">emptyFunction</span><span class="p">,</span>
+        <span class="nx">exit</span><span class="o">:</span> <span class="nx">exitCallback</span> <span class="o">||</span> <span class="nx">emptyFunction</span><span class="p">,</span>
+        <span class="nx">error</span><span class="o">:</span> <span class="nx">errorCallback</span> <span class="o">||</span> <span class="nx">emptyFunction</span>
+      <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>iOS only supports webkitEnterFullscreen on videos, so try that.
+Browsers that don't support full screen at all will also go through this,
+but they will fire an error.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">request</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">videoEnterFullscreen</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+      <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p><code>document.fullscreenEnabled</code> defined, but is <code>false</code>, so try a video if there is one.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">iframe</span> <span class="o">&amp;&amp;</span> <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span><span class="p">]</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">videoEnterFullscreen</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+      <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>If we're in an iframe, it needs to have the <code>allowfullscreen</code> attribute in order for element full screen
+to work. Safari 5.1 supports element full screen, but doesn't have <code>document.webkitFullScreenEnabled</code>,
+so the only way to tell if it will work is to just try it.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">iframe</span> <span class="o">&amp;&amp;</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span> <span class="o">=</span> <span class="s1">&#39;webkitFullscreenEnabled&#39;</span><span class="p">;</span>
+
+        <span class="nx">element</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">request</span><span class="p">]();</span>
+
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <p>It didn't work, so set <code>webkitFullscreenEnabled</code> to false so we don't
+have to try again next time. Then try to fall back to video full screen.</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">element</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span><span class="p">]</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="nx">videoEnterFullscreen</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+          <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <p>It worked! set <code>webkitFullscreenEnabled</code> so we know next time.</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="k">else</span> <span class="p">{</span>
+            <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">},</span> <span class="mi">250</span><span class="p">);</span>
+
+        <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">try</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <p>Safari 5.1 doesn't actually support asking for keyboard support,
+so don't try it. The alternative is to add another <code>setTimeout</code>
+below, which isn't nice.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">if</span> <span class="p">(</span><span class="sr">/5\.1[\.\d]* Safari/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">navigator</span><span class="p">.</span><span class="nx">userAgent</span><span class="p">))</span> <span class="p">{</span>
+          <span class="nx">element</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">request</span><span class="p">]();</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">element</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">request</span><span class="p">](</span><span class="nx">keyboardAllowed</span> <span class="o">&amp;&amp;</span> <span class="nx">Element</span><span class="p">.</span><span class="nx">ALLOW_KEYBOARD_INPUT</span><span class="p">);</span>
+        <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-26">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-26">&#182;</a>               </div>               <p>If there's no element after 100ms, it didn't work. This check is for Safari 5.1
+which fails to fire a <code>webkitfullscreenerror</code> if the request wasn't from a user
+action.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">element</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">callOnError</span><span class="p">(</span><span class="nx">iframe</span> <span class="o">?</span> <span class="s1">&#39;not_enabled&#39;</span> <span class="o">:</span> <span class="s1">&#39;not_allowed&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">},</span> <span class="mi">100</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">callOnError</span><span class="p">(</span><span class="s1">&#39;not_enabled&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-27">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-27">&#182;</a>               </div>               <h3>exit</h3>
+
+<p>Pops the last full screen element off the stack.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">exit</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-28">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-28">&#182;</a>               </div>               <p>Remove the resize hack here if exit is called manually, so it doesn't fire twice.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">removeWindowResizeHack</span><span class="p">();</span>
+      <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">exit</span><span class="p">]();</span>
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-29">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-29">&#182;</a>               </div>               <h3>toggle</h3>
+
+<p>Shortcut function if you only plan on putting one element into full screen.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">toggle</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">enterCallback</span><span class="p">,</span> <span class="nx">exitCallback</span><span class="p">,</span> <span class="nx">errorCallback</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">exit</span><span class="p">();</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">element</span><span class="p">,</span> <span class="nx">enterCallback</span><span class="p">,</span> <span class="nx">exitCallback</span><span class="p">,</span> <span class="nx">errorCallback</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-30">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-30">&#182;</a>               </div>               <h3>videoEnabled</h3>
+
+<p>Mobile Safari and earlier versions of desktop Safari support sending a <code>&lt;video&gt;</code> into full screen,
+even if the <code>allowfullscreen</code> attribute isn't present on the iframe. Checks can't be performed to
+verify full screen capabilities unless we know about that element, and it has loaded its metadata.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">videoEnabled</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">enabled</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="nx">element</span> <span class="o">=</span> <span class="nx">element</span> <span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">video</span> <span class="o">=</span> <span class="nx">_getVideo</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">video</span> <span class="o">||</span> <span class="nx">video</span><span class="p">.</span><span class="nx">webkitSupportsFullscreen</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">return</span> <span class="nx">video</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">&lt;</span> <span class="nx">video</span><span class="p">.</span><span class="nx">HAVE_METADATA</span> <span class="o">?</span> <span class="s1">&#39;maybe&#39;</span> <span class="o">:</span> <span class="nx">video</span><span class="p">.</span><span class="nx">webkitSupportsFullscreen</span><span class="p">;</span>
+    <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <h3>onenter, onexit, onchange, onerror</h3>
+
+<p>Populate the global handlers with empty functions.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">onenter</span><span class="o">:</span> <span class="nx">emptyFunction</span><span class="p">,</span>
+    <span class="nx">onexit</span><span class="o">:</span> <span class="nx">emptyFunction</span><span class="p">,</span>
+    <span class="nx">onchange</span><span class="o">:</span> <span class="nx">emptyFunction</span><span class="p">,</span>
+    <span class="nx">onerror</span><span class="o">:</span> <span class="nx">emptyFunction</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-32">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-32">&#182;</a>               </div>               <p>Define the two properties <code>element</code> and <code>enabled</code> with getters.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">try</span> <span class="p">{</span>
+    <span class="nb">Object</span><span class="p">.</span><span class="nx">defineProperties</span><span class="p">(</span><span class="nx">bigscreen</span><span class="p">,</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-33">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-33">&#182;</a>               </div>               <h3>element</h3>
+
+<p>Get the current element that is displaying full screen.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">element</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">enumerable</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">lastVideoElement</span> <span class="o">&amp;&amp;</span> <span class="nx">lastVideoElement</span><span class="p">.</span><span class="nx">webkitDisplayingFullscreen</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">lastVideoElement</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="k">return</span> <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">element</span><span class="p">]</span> <span class="o">||</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-34">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-34">&#182;</a>               </div>               <h3>enabled</h3>
+
+<p>Check if element full screen is supported.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">enabled</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">enumerable</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-35">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-35">&#182;</a>               </div>               <p>Safari 5.1 supports full screen, but doesn't have a fullScreenEnabled property,
+but it should work if not in an iframe. If it doesn't work when tried for the
+first time, we'll set this to <code>false</code> then.</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="k">if</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">exit</span> <span class="o">===</span> <span class="s1">&#39;webkitCancelFullScreen&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">iframe</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="k">return</span> <span class="nb">document</span><span class="p">[</span><span class="nx">fn</span><span class="p">.</span><span class="nx">enabled</span><span class="p">]</span> <span class="o">||</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-36">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-36">&#182;</a>               </div>               <p>If the define fails, set them to <code>null</code> and <code>false</code>, respectively.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">enabled</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-37">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-37">&#182;</a>               </div>               <p>If there is a valid <code>fullscreenchange</code> event, set up the listener for it.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">change</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">change</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">onFullscreenChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">onchange</span><span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-38">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-38">&#182;</a>               </div>               <p>This should be treated an exit if the element that is in full screen
+is the previous element in our stack.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="kd">var</span> <span class="nx">previousElement</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">[</span><span class="nx">elements</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">2</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">previousElement</span> <span class="o">&amp;&amp;</span> <span class="nx">previousElement</span><span class="p">.</span><span class="nx">element</span> <span class="o">===</span> <span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">callOnExit</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">callOnEnter</span><span class="p">(</span><span class="nx">bigscreen</span><span class="p">.</span><span class="nx">element</span><span class="p">);</span>
+          <span class="nx">addWindowResizeHack</span><span class="p">();</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">callOnExit</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-39">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-39">&#182;</a>               </div>               <p>If there is a valid <code>fullscreenerror</code> event, set up the listener for it.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">onFullscreenError</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">callOnError</span><span class="p">(</span><span class="s1">&#39;not_allowed&#39;</span><span class="p">);</span>
+    <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-40">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-40">&#182;</a>               </div>               <p>Externalize the BigScreen object. Use array notation to play nicer with
+Closure Compiler.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nb">window</span><span class="p">[</span><span class="s1">&#39;BigScreen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">bigscreen</span><span class="p">;</span>
+
+<span class="p">}(</span><span class="nb">window</span><span class="p">,</span> <span class="nb">document</span><span class="p">,</span> <span class="nx">self</span> <span class="o">!==</span> <span class="nx">top</span><span class="p">));</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

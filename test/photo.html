@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<title>BigScreen Photo Example</title>
+<link rel="stylesheet" href="src/common.css">
+
+<div id="image" class="zoom-in"></div>
+<script src="../src/bigscreen.js"></script>
+<script src="libs/common.js"></script>
+<script>
+
+	function enterCallback(actualElement) {
+		sendMessage({
+			scope: 'photo',
+			name: 'enter',
+			id: actualElement.id
+		});
+
+		this.classList.remove('zoom-in');
+		this.classList.add('zoom-out');
+	}
+
+	function exitCallback() {
+		sendMessage({
+			scope: 'photo',
+			name: 'exit'
+		});
+
+		this.classList.remove('zoom-out');
+		this.classList.add('zoom-in');
+	}
+
+	function errorCallback(reason) {
+		sendMessage({
+			scope: 'photo',
+			name: 'error',
+			reason: reason,
+			id: this.id
+		});
+	}
+
+	var img = document.getElementById('image');
+
+	img.addEventListener('click', function() {
+		BigScreen.toggle(img, enterCallback, exitCallback, errorCallback);
+	}, false);
+
+</script>

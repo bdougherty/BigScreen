@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<title>BigScreen iframe Test Page</title>
+<style>
+	iframe { border: 1px solid transparent; margin: 10px; }
+	.disabled { border-color: red; }
+	#console { position: fixed; top: 10px; right: 10px; }
+	@media screen and (max-width: 1200px) {
+		iframe {
+			display: block;
+		}
+	}
+</style>
+
+<pre id="console"></pre>
+
+<h1>Video</h1>
+<iframe src="video.html" frameborder="0" width="400" height="225" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<iframe src="video.html" frameborder="0" width="400" height="225" class="disabled"></iframe>
+
+<h1>Photo</h1>
+<iframe src="photo.html" frameborder="0" width="400" height="299" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<iframe src="photo.html" frameborder="0" width="400" height="299" class="disabled"></iframe>
+
+<script>
+	var output = document.getElementById('console');
+	window.addEventListener('message', function(event) {
+		var obj = JSON.parse(event.data);
+
+		var string = '[' + obj.scope + '] ' + obj.name + ':';
+
+		if (obj.id) {
+			string += ' #' + obj.id;
+		}
+
+		if (obj.actualId) {
+			string += ' (#' + obj.actualId + ')';
+		}
+
+		if (obj.reason) {
+			string += ' ' + obj.reason;
+		}
+
+		if ((obj.name === 'exit' || obj.name === 'error') && obj.scope === 'global') {
+			string += "\n------------------------------------";
+		}
+
+		output.innerHTML += string + "\n";
+	}, false);
+</script>
