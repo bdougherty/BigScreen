@@ -1,0 +1,5 @@
+{
+	"framework": "mocha",
+	"src_files": ["src/**/*.js", "test/libs/sinon.js", "test/libs/chai.js", "test/libs/sinon-chai.js", "test/**/*-test.js"],
+	"launch_in_dev": ["safari", "opera"]
+}

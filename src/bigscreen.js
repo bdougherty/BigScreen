@@ -1,3 +1,4 @@
+// A library to make it easier to use the JavaScript Fullscreen API.
 (function(window, document, iframe) {
 	'use strict';
 
@@ -5,7 +6,8 @@
 
 	var fn = (function() {
 		var map = [
-			// spec
+			// Properties/events/functions as defined in the spec.
+			// Currently implemented in Opera.
 			{
 				request: 'requestFullscreen',
 				exit: 'exitFullscreen',
@@ -14,7 +16,8 @@
 				change: 'fullscreenchange',
 				error: 'fullscreenerror'
 			},
-			// new WebKit
+			// Properties/events/functions in newer versions of WebKit (Chrome and Safari 6).
+			// _Note the lowercase 's' in Fulscreen (to match the spec).
 			{
 				request: 'webkitRequestFullscreen',
 				exit: 'webkitExitFullscreen',
@@ -23,7 +26,8 @@
 				change: 'webkitfullscreenchange',
 				error: 'webkitfullscreenerror'
 			},
-			// older WebKit (Safari 5.1)
+			// Properties/events/functions for older WebKit (Safari 5.1).
+			// _Note the capital 'S' in FullScreen._
 			{
 				request: 'webkitRequestFullScreen',
 				exit: 'webkitCancelFullScreen',
@@ -31,7 +35,7 @@
 				change: 'webkitfullscreenchange',
 				error: 'webkitfullscreenerror'
 			},
-			// Firefox 10+
+			// Properties/events/functions for Firefox 10+.
 			{
 				request: 'mozRequestFullScreen',
 				exit: 'mozCancelFullScreen',
@@ -45,14 +49,17 @@
 		var fullscreen = false;
 		var testElement = document.createElement('video');
 
-		// Loop through each one and check to see if the request function exists
+		// Loop over each set of properties/events/functions to find the set that has
+		// a working requestFullscreen function. Double-check that the rest of the
+		// functions and properties actually do exist, and if they don't, delete them.
+		// Skip checking events events though, because Opera reports document.onfullscreenerror
+		// as undefined instead of null.
 		for (var i = 0; i < map.length; i++) {
 			if (map[i].request in testElement) {
 				fullscreen = map[i];
 
-				// Double-check that all functions/events exist and if not, delete them
 				for (var item in fullscreen) {
-					if (!('on' + fullscreen[item] in document) && !(fullscreen[item] in document) && !(fullscreen[item] in testElement)) {
+					if (item !== 'change' && item !== 'error' && !(fullscreen[item] in document) && !(fullscreen[item] in testElement)) {
 						delete fullscreen[item];
 					}
 				}
@@ -66,29 +73,8 @@
 		return fullscreen;
 	}());
 
-	// From Underscore.js 1.3.3
-	// http://underscorejs.org
-	function debounce(func, wait, immediate) {
-		var timeout;
-		return function() {
-			var context = this, args = arguments;
-			var later = function() {
-				timeout = null;
-				if (!immediate) {
-					func.apply(context, args);
-				}
-			};
-			var callNow = immediate && !timeout;
-			clearTimeout(timeout);
-			timeout = setTimeout(later, wait);
-			if (callNow) {
-				func.apply(context, args);
-			}
-		};
-	}
-
-	// Find a child <video> in the element passed.
-	function getVideo(element) {
+	// Find a child video in the element passed.
+	function _getVideo(element) {
 		var videoElement = null;
 
 		if (element.tagName === 'VIDEO') {
@@ -104,26 +90,32 @@
 		return videoElement;
 	}
 
-	var lastFullscreenVideo = null;
+	var lastVideoElement = null;
 	var hasControls = null;
+	var emptyFunction = function() {};
+	var elements = [];
 
-	// Check to see if there is a <video> and if the video has webkitEnterFullscreen, try it.
-	// Metadata needs to be loaded for it to work, so load() if we need to.
+	// Attempt to put a child video into full screen using webkitEnterFullscreen.
+	// The metadata must be loaded in order for it to work, so load it automatically
+	// if it isn't already.
 	function videoEnterFullscreen(element) {
-		var videoElement = getVideo(element);
+		var videoElement = _getVideo(element);
 
 		if (videoElement && videoElement.webkitEnterFullscreen) {
 			try {
-				// We can tell when it enters and exits full screen on iOS using these events.
-				// Desktop Safari will fire the normal fullscreenchange event.
+				// We can tell when the video enters and exits full screen on iOS using the `webkitbeginfullscreen`
+				// and `webkitendfullscreen` events. Desktop Safari and Chrome will fire the normal `fullscreenchange`
+				// event instead.
 				videoElement.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
 					videoElement.removeEventListener('webkitbeginfullscreen', onBeginFullscreen, false);
+					bigscreen.onchange(videoElement);
 					callOnEnter(videoElement);
 				}, false);
 
 				videoElement.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
 					videoElement.removeEventListener('webkitendfullscreen', onEndFullscreen, false);
-					callOnExit(videoElement);
+					bigscreen.onchange();
+					callOnExit();
 				}, false);
 
 				if (videoElement.readyState < videoElement.HAVE_METADATA) {
@@ -139,23 +131,22 @@
 					hasControls = !!videoElement.getAttribute('controls');
 				}
 
-				lastFullscreenVideo = videoElement;
-				videoElement.play();
+				lastVideoElement = videoElement;
 			}
 			catch (err) {
-				bigscreen.onerror.call(videoElement);
+				return callOnError('not_supported', element);
 			}
 
-			return;
+			return true;
 		}
 
-		bigscreen.onerror.call(element);
+		return callOnError(fn.request === undefined ? 'not_supported' : 'not_enabled', element);
 	}
 
-	// There is a bug in WebKit that will not fire a fullscreenchange event when the element exiting
-	// is an iframe. This will listen for a window resize and fire exit if there is no current element.
-	// Chrome bug: http://code.google.com/p/chromium/issues/detail?id=138368
-	// Safari bug: rdar://11927884
+	// There is a bug in older versions of WebKit that will fire `webkitfullscreenchange` twice when
+	// entering full screen from inside an iframe, and won't fire it when exiting. We can listen for
+	// a resize event once we enter to tell when it returns to normal size (and thus has exited full
+	// screen). See the [Safari bug](rdar://11927884).
 	function resizeExitHack() {
 		if (!bigscreen.element) {
 			callOnExit();
@@ -163,6 +154,7 @@
 		}
 	}
 
+	// Add the listener for the resize hack, but only when inside an iframe in WebKit.
 	function addWindowResizeHack() {
 		if (iframe && fn.change === 'webkitfullscreenchange') {
 			window.addEventListener('resize', resizeExitHack, false);
@@ -175,40 +167,97 @@
 		}
 	}
 
-	var callOnEnter = debounce(function() {
-		bigscreen.onenter.call(bigscreen);
-	}, 500, true);
-
-	var callOnExit = debounce(function() {
-		// Fix a bug present in some versions of WebKit that will show the native controls when
-		// exiting, even if they were not showing before.
-		if (lastFullscreenVideo && !hasControls) {
-			lastFullscreenVideo.setAttribute('controls', 'controls');
-			lastFullscreenVideo.removeAttribute('controls');
+	var callOnEnter = function(actualElement) {
+		// Return if the element entering has actually entered already. In older WebKit versions the
+		// browser will fire 2 `webkitfullscreenchange` events when entering full screen from inside an
+		// iframe. This is the result of the same bug as the resizeExitHack.
+		var lastElement = elements[elements.length - 1];
+		if ((actualElement === lastElement.element || actualElement === lastVideoElement) && lastElement.hasEntered) {
+			return;
 		}
 
-		lastFullscreenVideo = null;
+		// Call the global enter handler only if this is the first element.
+		if (elements.length === 1) {
+			bigscreen.onenter(bigscreen.element);
+		}
+
+		// Call the stored callback for the request call and record that we did so we don't do it
+		// again if there is a duplicate call (see above).
+		lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
+		lastElement.hasEntered = true;
+	};
+
+	var callOnExit = function() {
+		// Fix a bug present in some versions of WebKit that will show the native controls when
+		// exiting, even if they were not showing before.
+		if (lastVideoElement && !hasControls) {
+			lastVideoElement.setAttribute('controls', 'controls');
+			lastVideoElement.removeAttribute('controls');
+		}
+
+		lastVideoElement = null;
 		hasControls = null;
 
-		bigscreen.onexit.call(bigscreen);
-	}, 500, true);
+		var element = elements.pop();
+
+		// Check to make sure that the element exists. This function will get called a second
+		// time from the iframe resize hack.
+		if (element) {
+			element.exit.call(element.element);
+
+			// When the browser has fully exited full screen, make sure to loop
+			// through and call the rest of the callbacks and then the global exit.
+			if (!bigscreen.element) {
+				elements.forEach(function(element) {
+					element.exit.call(element.element);
+				});
+				elements = [];
+
+				bigscreen.onexit();
+			}
+		}
+	};
+
+	// Make a callback to the error handlers and clear the element from the stack when
+	// an error occurs.
+	var callOnError = function(reason, element) {
+		if (elements.length > 0) {
+			var obj = elements.pop();
+			element = element || obj.element;
+
+			obj.error.call(element, reason);
+			bigscreen.onerror(element, reason);
+		}
+	};
 
 	var bigscreen = {
-		request: function(element) {
+		// ### request
+		// The meat of BigScreen is here. Run through a bunch of checks to try to get
+		// something into full screen that's a child of the element passed in.
+		request: function(element, enterCallback, exitCallback, errorCallback) {
 			element = element || document.documentElement;
 
-			// iOS only supports webkitEnterFullscreen on videos.
+			elements.push({
+				element: element,
+				enter: enterCallback || emptyFunction,
+				exit: exitCallback || emptyFunction,
+				error: errorCallback || emptyFunction
+			});
+
+			// iOS only supports webkitEnterFullscreen on videos, so try that.
+			// Browsers that don't support full screen at all will also go through this,
+			// but they will fire an error.
 			if (fn.request === undefined) {
 				return videoEnterFullscreen(element);
 			}
 
-			// document.fullscreenEnabled is false, so try a video if there is one.
+			// `document.fullscreenEnabled` defined, but is `false`, so try a video if there is one.
 			if (iframe && document[fn.enabled] === false) {
 				return videoEnterFullscreen(element);
 			}
 
-			// If we're in an iframe, it needs to have the allowfullscreen attribute in order for element full screen
-			// to work. Safari 5.1 supports element full screen, but doesn't have document.webkitFullScreenEnabled,
+			// If we're in an iframe, it needs to have the `allowfullscreen` attribute in order for element full screen
+			// to work. Safari 5.1 supports element full screen, but doesn't have `document.webkitFullScreenEnabled`,
 			// so the only way to tell if it will work is to just try it.
 			if (iframe && fn.enabled === undefined) {
 				fn.enabled = 'webkitFullscreenEnabled';
@@ -216,10 +265,13 @@
 				element[fn.request]();
 
 				setTimeout(function() {
+					// It didn't work, so set `webkitFullscreenEnabled` to false so we don't
+					// have to try again next time. Then try to fall back to video full screen.
 					if (!document[fn.element]) {
 						document[fn.enabled] = false;
 						videoEnterFullscreen(element);
 					}
+					// It worked! set `webkitFullscreenEnabled` so we know next time.
 					else {
 						document[fn.enabled] = true;
 					}
@@ -229,39 +281,58 @@
 			}
 
 			try {
-				element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
-
-				// Safari 5.1 incorrectly states that it allows keyboard input when it doesn't
-				if (!document[fn.element]) {
+				// Safari 5.1 doesn't actually support asking for keyboard support,
+				// so don't try it. The alternative is to add another `setTimeout`
+				// below, which isn't nice.
+				if (/5\.1[\.\d]* Safari/.test(navigator.userAgent)) {
 					element[fn.request]();
 				}
+				else {
+					element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+				}
+
+				// If there's no element after 100ms, it didn't work. This check is for Safari 5.1
+				// which fails to fire a `webkitfullscreenerror` if the request wasn't from a user
+				// action.
+				setTimeout(function() {
+					if (!document[fn.element]) {
+						callOnError(iframe ? 'not_enabled' : 'not_allowed', element);
+					}
+				}, 100);
 			}
 			catch (err) {
-				bigscreen.onerror.call(element);
+				callOnError('not_enabled', element);
 			}
 		},
+		// ### exit
+		// Pops the last full screen element off the stack.
 		exit: function() {
-			removeWindowResizeHack(); // remove here if exit is called manually, so two onexit events are not fired
+			// Remove the resize hack here if exit is called manually, so it doesn't fire twice.
+			removeWindowResizeHack();
 			document[fn.exit]();
 		},
-		toggle: function(element) {
+		// ### toggle
+		// Shortcut function if you only plan on putting one element into full screen.
+		toggle: function(element, enterCallback, exitCallback, errorCallback) {
 			if (bigscreen.element) {
 				bigscreen.exit();
 			}
 			else {
-				bigscreen.request(element);
+				bigscreen.request(element, enterCallback, exitCallback, errorCallback);
 			}
 		},
 
-		// Mobile Safari and earlier versions of desktop Safari support sending a <video> into full screen.
-		// Checks can't be performed to verify full screen capabilities unless we know about that element,
-		// and it has loaded its metadata.
+		// ### videoEnabled
+		// Mobile Safari and earlier versions of desktop Safari support sending a `<video>` into full screen,
+		// even if the `allowfullscreen` attribute isn't present on the iframe. Checks can't be performed to
+		// verify full screen capabilities unless we know about that element, and it has loaded its metadata.
 		videoEnabled: function(element) {
 			if (bigscreen.enabled) {
 				return true;
 			}
 
-			var video = getVideo(element);
+			element = element || document.documentElement;
+			var video = _getVideo(element);
 
 			if (!video || video.webkitSupportsFullscreen === undefined) {
 				return false;
@@ -270,28 +341,37 @@
 			return video.readyState < video.HAVE_METADATA ? 'maybe' : video.webkitSupportsFullscreen;
 		},
 
-		onenter: function() {},
-		onexit: function() {},
-		onerror: function() {}
+		// ### onenter, onexit, onchange, onerror
+		// Populate the global handlers with empty functions.
+		onenter: emptyFunction,
+		onexit: emptyFunction,
+		onchange: emptyFunction,
+		onerror: emptyFunction
 	};
 
+	// Define the two properties `element` and `enabled` with getters.
 	try {
 		Object.defineProperties(bigscreen, {
+			// ### element
+			// Get the current element that is displaying full screen.
 			element: {
 				enumerable: true,
 				get: function() {
-					if (lastFullscreenVideo && lastFullscreenVideo.webkitDisplayingFullscreen) {
-						return lastFullscreenVideo;
+					if (lastVideoElement && lastVideoElement.webkitDisplayingFullscreen) {
+						return lastVideoElement;
 					}
 
 					return document[fn.element] || null;
 				}
 			},
+			// ### enabled
+			// Check if element full screen is supported.
 			enabled: {
 				enumerable: true,
 				get: function() {
 					// Safari 5.1 supports full screen, but doesn't have a fullScreenEnabled property,
-					// but it should work if not in an iframe.
+					// but it should work if not in an iframe. If it doesn't work when tried for the
+					// first time, we'll set this to `false` then.
 					if (fn.exit === 'webkitCancelFullScreen' && !iframe) {
 						return true;
 					}
@@ -301,16 +381,28 @@
 			}
 		});
 	}
+	// If the define fails, set them to `null` and `false`, respectively.
 	catch (err) {
 		bigscreen.element = null;
 		bigscreen.enabled = false;
 	}
 
+	// If there is a valid `fullscreenchange` event, set up the listener for it.
 	if (fn.change) {
-		document.addEventListener(fn.change, function(event) {
+		document.addEventListener(fn.change, function onFullscreenChange(event) {
+			bigscreen.onchange(bigscreen.element);
+
 			if (bigscreen.element) {
-				callOnEnter();
-				addWindowResizeHack();
+				// This should be treated an exit if the element that is in full screen
+				// is the previous element in our stack.
+				var previousElement = elements[elements.length - 2];
+				if (previousElement && previousElement.element === bigscreen.element) {
+					callOnExit();
+				}
+				else {
+					callOnEnter(bigscreen.element);
+					addWindowResizeHack();
+				}
 			}
 			else {
 				callOnExit();
@@ -318,12 +410,15 @@
 		}, false);
 	}
 
+	// If there is a valid `fullscreenerror` event, set up the listener for it.
 	if (fn.error) {
-		document.addEventListener(fn.error, function(event) {
-			bigscreen.onerror.call(event.target);
+		document.addEventListener(fn.error, function onFullscreenError(event) {
+			callOnError('not_allowed');
 		}, false);
 	}
 
-	window.BigScreen = bigscreen;
+	// Externalize the BigScreen object. Use array notation to play nicer with
+	// Closure Compiler.
+	window['BigScreen'] = bigscreen;
 
 }(window, document, self !== top));
