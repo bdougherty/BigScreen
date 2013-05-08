@@ -5,72 +5,30 @@
 	var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
 
 	var fn = (function() {
-		var map = [
-			// Properties/events/functions as defined in the spec.
-			// Currently implemented in Opera.
-			{
-				request: 'requestFullscreen',
-				exit: 'exitFullscreen',
-				enabled: 'fullscreenEnabled',
-				element: 'fullscreenElement',
-				change: 'fullscreenchange',
-				error: 'fullscreenerror'
-			},
-			// Properties/events/functions in newer versions of WebKit (Chrome and Safari 6).
-			// _Note the lowercase 's' in Fulscreen (to match the spec).
-			{
-				request: 'webkitRequestFullscreen',
-				exit: 'webkitExitFullscreen',
-				enabled: 'webkitFullscreenEnabled',
-				element: 'webkitFullscreenElement',
-				change: 'webkitfullscreenchange',
-				error: 'webkitfullscreenerror'
-			},
-			// Properties/events/functions for older WebKit (Safari 5.1).
-			// _Note the capital 'S' in FullScreen._
-			{
-				request: 'webkitRequestFullScreen',
-				exit: 'webkitCancelFullScreen',
-				element: 'webkitCurrentFullScreenElement',
-				change: 'webkitfullscreenchange',
-				error: 'webkitfullscreenerror'
-			},
-			// Properties/events/functions for Firefox 10+.
-			{
-				request: 'mozRequestFullScreen',
-				exit: 'mozCancelFullScreen',
-				enabled: 'mozFullScreenEnabled',
-				element: 'mozFullScreenElement',
-				change: 'mozfullscreenchange',
-				error: 'mozfullscreenerror'
-			}
-		];
-
-		var fullscreen = false;
 		var testElement = document.createElement('video');
+		var browserProperties = {
+			request: ['requestFullscreen', 'webkitRequestFullscreen', 'webkitRequestFullScreen', 'mozRequestFullScreen'],
+			exit: ['exitFullscreen', 'webkitExitFullscreen', 'webkitCancelFullScreen', 'mozCancelFullScreen'],
+			enabled: ['fullscreenEnabled', 'webkitFullscreenEnabled', 'mozFullScreenEnabled'],
+			element: ['fullscreenElement', 'webkitFullscreenElement', 'webkitCurrentFullScreenElement', 'mozFullScreenElement'],
+			change: ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'],
+			error: ['fullscreenerror', 'webkitfullscreenerror', 'mozfullscreenerror']
+		};
 
-		// Loop over each set of properties/events/functions to find the set that has
-		// a working requestFullscreen function. Double-check that the rest of the
-		// functions and properties actually do exist, and if they don't, delete them.
-		// Skip checking events events though, because Opera reports document.onfullscreenerror
-		// as undefined instead of null.
-		for (var i = 0; i < map.length; i++) {
-			if (map[i].request in testElement) {
-				fullscreen = map[i];
+		var properties = {};
 
-				for (var item in fullscreen) {
-					if (item !== 'change' && item !== 'error' && !(fullscreen[item] in document) && !(fullscreen[item] in testElement)) {
-						delete fullscreen[item];
-					}
+		// Loop thorugh each property/event/function and find the ones that work
+		// in this browser.
+		for (var prop in browserProperties) {
+			for (var i = 0, length = browserProperties[prop].length; i < length; i++) {
+				if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || 'on' + browserProperties[prop][i] in document) {
+					properties[prop] = browserProperties[prop][i];
+					break;
 				}
-
-				break;
 			}
 		}
 
-		testElement = null;
-
-		return fullscreen;
+		return properties;
 	}());
 
 	// Find a child video in the element passed.
