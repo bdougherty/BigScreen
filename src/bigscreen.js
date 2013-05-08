@@ -103,21 +103,6 @@
 
 		if (videoElement && videoElement.webkitEnterFullscreen) {
 			try {
-				// We can tell when the video enters and exits full screen on iOS using the `webkitbeginfullscreen`
-				// and `webkitendfullscreen` events. Desktop Safari and Chrome will fire the normal `fullscreenchange`
-				// event instead.
-				videoElement.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
-					videoElement.removeEventListener('webkitbeginfullscreen', onBeginFullscreen, false);
-					bigscreen.onchange(videoElement);
-					callOnEnter(videoElement);
-				}, false);
-
-				videoElement.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
-					videoElement.removeEventListener('webkitendfullscreen', onEndFullscreen, false);
-					bigscreen.onchange();
-					callOnExit();
-				}, false);
-
 				if (videoElement.readyState < videoElement.HAVE_METADATA) {
 					videoElement.addEventListener('loadedmetadata', function onMetadataLoaded() {
 						videoElement.removeEventListener('loadedmetadata', onMetadataLoaded, false);
@@ -409,6 +394,19 @@
 			}
 		}, false);
 	}
+
+	// Listen for the video-only fullscreen events. Only applies to mobile browsers.
+	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
+	// Use the capture phase because that seems to be the only way to get them.
+	document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
+		bigscreen.onchange(event.srcElement);
+		callOnEnter(event.srcElement);
+	}, true);
+
+	document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
+		bigscreen.onchange(event.srcElement);
+		callOnExit(event.srcElement);
+	}, true);
 
 	// If there is a valid `fullscreenerror` event, set up the listener for it.
 	if (fn.error) {
