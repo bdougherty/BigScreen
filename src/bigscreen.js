@@ -128,6 +128,11 @@
 		// again if there is a duplicate call (see above).
 		lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
 		lastElement.hasEntered = true;
+
+		// If the element is a video, store it here for the enabled check.
+		if (actualElement.tagName === 'VIDEO') {
+			lastVideoElement = actualElement;
+		}
 	};
 
 	var callOnExit = function() {
