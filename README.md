@@ -19,11 +19,13 @@ BigScreen is ~1.4 kb minified and gzipped. [Download it now](https://raw.github.
 * Firefox 10+
 * Safari 5.1+
 * Opera 12.1+
+* Firefox for Android 18+
 
 These browsers are also supported for video only:
 
 * Safari 5.0
 * iOS 4.2+
+* Android 2.1+
 
 (See [caniuse](http://caniuse.com/#feat=fullscreen) for always up-to-date info)
 
@@ -83,9 +85,9 @@ BigScreen.onexit = function() {
 
 ### BigScreen.request(element[, onEnter, onExit, onError])
 
-Request that an element go into full screen. If the element is falsy, the `documentElement` will be used instead.
+Request that an element go into full screen. If the element is falsy, the `<body>` will be used instead.
 
-You can only call this from a user-initiated event, otherwise the browser will deny the request. That means click, key, or touch events.
+You can only call this from a user-initiated event, otherwise the browser will deny the request. That means key, touch, mouse, or pointer events.
 
 In addition, if your page is inside an `<iframe>` it will need to have the `allowfullscreen` (and `webkitallowfullscreen` and `mozallowfullscreen`) attribute set on the `<iframe>`.
 
@@ -140,6 +142,7 @@ This function will report `false` if there is no child `<video>`, or if it is no
 
 ## Version History
 
+* 2.0.1 - 06/15/2013 - Update to use `document.body` instead of `documentElement` and better detection of `<video>` going into full screen
 * 2.0.0 - 01/21/2013 - Add individual element callbacks and clean up error handling
 * 1.0.2 - 12/26/2012 - Use `webkitbeginfullscreen` and `webkitendfullscreen` on iOS instead of polling
 * 1.0.1 - 10/04/2012 - Fix for video controls bug in WebKit

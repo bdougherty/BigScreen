@@ -1,5 +1,5 @@
 /*! BigScreen
- * v2.0.0 - 2013-01-21
+ * v2.0.1 - 2013-06-15
  * https://github.com/bdougherty/BigScreen
  * Copyright 2013 Brad Dougherty; Apache 2.0 License
  */
@@ -7,49 +7,25 @@
     "use strict";
     var keyboardAllowed = typeof Element !== "undefined" && "ALLOW_KEYBOARD_INPUT" in Element;
     var fn = function() {
-        var map = [ {
-            request: "requestFullscreen",
-            exit: "exitFullscreen",
-            enabled: "fullscreenEnabled",
-            element: "fullscreenElement",
-            change: "fullscreenchange",
-            error: "fullscreenerror"
-        }, {
-            request: "webkitRequestFullscreen",
-            exit: "webkitExitFullscreen",
-            enabled: "webkitFullscreenEnabled",
-            element: "webkitFullscreenElement",
-            change: "webkitfullscreenchange",
-            error: "webkitfullscreenerror"
-        }, {
-            request: "webkitRequestFullScreen",
-            exit: "webkitCancelFullScreen",
-            element: "webkitCurrentFullScreenElement",
-            change: "webkitfullscreenchange",
-            error: "webkitfullscreenerror"
-        }, {
-            request: "mozRequestFullScreen",
-            exit: "mozCancelFullScreen",
-            enabled: "mozFullScreenEnabled",
-            element: "mozFullScreenElement",
-            change: "mozfullscreenchange",
-            error: "mozfullscreenerror"
-        } ];
-        var fullscreen = false;
         var testElement = document.createElement("video");
-        for (var i = 0; i < map.length; i++) {
-            if (map[i].request in testElement) {
-                fullscreen = map[i];
-                for (var item in fullscreen) {
-                    if (item !== "change" && item !== "error" && !(fullscreen[item] in document) && !(fullscreen[item] in testElement)) {
-                        delete fullscreen[item];
-                    }
+        var browserProperties = {
+            request: [ "requestFullscreen", "webkitRequestFullscreen", "webkitRequestFullScreen", "mozRequestFullScreen" ],
+            exit: [ "exitFullscreen", "webkitExitFullscreen", "webkitCancelFullScreen", "mozCancelFullScreen" ],
+            enabled: [ "fullscreenEnabled", "webkitFullscreenEnabled", "mozFullScreenEnabled" ],
+            element: [ "fullscreenElement", "webkitFullscreenElement", "webkitCurrentFullScreenElement", "mozFullScreenElement" ],
+            change: [ "fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange" ],
+            error: [ "fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror" ]
+        };
+        var properties = {};
+        for (var prop in browserProperties) {
+            for (var i = 0, length = browserProperties[prop].length; i < length; i++) {
+                if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || "on" + browserProperties[prop][i] in document) {
+                    properties[prop] = browserProperties[prop][i];
+                    break;
                 }
-                break;
             }
         }
-        testElement = null;
-        return fullscreen;
+        return properties;
     }();
     function _getVideo(element) {
         var videoElement = null;
@@ -71,16 +47,6 @@
         var videoElement = _getVideo(element);
         if (videoElement && videoElement.webkitEnterFullscreen) {
             try {
-                videoElement.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
-                    videoElement.removeEventListener("webkitbeginfullscreen", onBeginFullscreen, false);
-                    bigscreen.onchange(videoElement);
-                    callOnEnter(videoElement);
-                }, false);
-                videoElement.addEventListener("webkitendfullscreen", function onEndFullscreen(event) {
-                    videoElement.removeEventListener("webkitendfullscreen", onEndFullscreen, false);
-                    bigscreen.onchange();
-                    callOnExit();
-                }, false);
                 if (videoElement.readyState < videoElement.HAVE_METADATA) {
                     videoElement.addEventListener("loadedmetadata", function onMetadataLoaded() {
                         videoElement.removeEventListener("loadedmetadata", onMetadataLoaded, false);
@@ -126,6 +92,9 @@
         }
         lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
         lastElement.hasEntered = true;
+        if (actualElement.tagName === "VIDEO") {
+            lastVideoElement = actualElement;
+        }
     };
     var callOnExit = function() {
         if (lastVideoElement && !hasControls) {
@@ -156,7 +125,7 @@
     };
     var bigscreen = {
         request: function(element, enterCallback, exitCallback, errorCallback) {
-            element = element || document.documentElement;
+            element = element || document.body;
             elements.push({
                 element: element,
                 enter: enterCallback || emptyFunction,
@@ -212,7 +181,7 @@
             if (bigscreen.enabled) {
                 return true;
             }
-            element = element || document.documentElement;
+            element = element || document.body;
             var video = _getVideo(element);
             if (!video || video.webkitSupportsFullscreen === undefined) {
                 return false;
@@ -265,6 +234,14 @@
             }
         }, false);
     }
+    document.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
+        bigscreen.onchange(event.srcElement);
+        callOnEnter(event.srcElement);
+    }, true);
+    document.addEventListener("webkitendfullscreen", function onEndFullscreen(event) {
+        bigscreen.onchange(event.srcElement);
+        callOnExit(event.srcElement);
+    }, true);
     if (fn.error) {
         document.addEventListener(fn.error, function onFullscreenError(event) {
             callOnError("not_allowed");
