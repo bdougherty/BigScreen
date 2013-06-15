@@ -183,7 +183,7 @@
 		// The meat of BigScreen is here. Run through a bunch of checks to try to get
 		// something into full screen that's a child of the element passed in.
 		request: function(element, enterCallback, exitCallback, errorCallback) {
-			element = element || document.documentElement;
+			element = element || document.body;
 
 			elements.push({
 				element: element,
@@ -279,7 +279,7 @@
 				return true;
 			}
 
-			element = element || document.documentElement;
+			element = element || document.body;
 			var video = _getVideo(element);
 
 			if (!video || video.webkitSupportsFullscreen === undefined) {
