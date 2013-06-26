@@ -362,6 +362,13 @@
 	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
 	// Use the capture phase because that seems to be the only way to get them.
 	document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
+		elements.push({
+			element: event.srcElement,
+			enter: emptyFunction,
+			exit: emptyFunction,
+			error: emptyFunction
+		});
+
 		bigscreen.onchange(event.srcElement);
 		callOnEnter(event.srcElement);
 	}, true);
