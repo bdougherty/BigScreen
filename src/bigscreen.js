@@ -52,6 +52,7 @@
 	var hasControls = null;
 	var emptyFunction = function() {};
 	var elements = [];
+	var chromeAndroid = navigator.userAgent.indexOf('Android') > -1 && navigator.userAgent.indexOf('Chrome') > -1;
 
 	// Attempt to put a child video into full screen using webkitEnterFullscreen.
 	// The metadata must be loaded in order for it to work, so load it automatically
@@ -204,6 +205,11 @@
 				return videoEnterFullscreen(element);
 			}
 
+			// Chrome on Android reports that fullscreen is enabled, but it isn't really.
+			if (chromeAndroid) {
+				return videoEnterFullscreen(element);
+			}
+
 			// If we're in an iframe, it needs to have the `allowfullscreen` attribute in order for element full screen
 			// to work. Safari 5.1 supports element full screen, but doesn't have `document.webkitFullScreenEnabled`,
 			// so the only way to tell if it will work is to just try it.
@@ -322,6 +328,11 @@
 					// first time, we'll set this to `false` then.
 					if (fn.exit === 'webkitCancelFullScreen' && !iframe) {
 						return true;
+					}
+
+					// Chrome on Android reports that fullscreen is enabled, but it isn't really.
+					if (chromeAndroid) {
+						return false;
 					}
 
 					return document[fn.enabled] || false;
