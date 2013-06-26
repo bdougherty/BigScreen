@@ -7,12 +7,12 @@
 	var fn = (function() {
 		var testElement = document.createElement('video');
 		var browserProperties = {
-			request: ['requestFullscreen', 'webkitRequestFullscreen', 'webkitRequestFullScreen', 'mozRequestFullScreen'],
-			exit: ['exitFullscreen', 'webkitExitFullscreen', 'webkitCancelFullScreen', 'mozCancelFullScreen'],
-			enabled: ['fullscreenEnabled', 'webkitFullscreenEnabled', 'mozFullScreenEnabled'],
-			element: ['fullscreenElement', 'webkitFullscreenElement', 'webkitCurrentFullScreenElement', 'mozFullScreenElement'],
-			change: ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'],
-			error: ['fullscreenerror', 'webkitfullscreenerror', 'mozfullscreenerror']
+			request: ['requestFullscreen', 'webkitRequestFullscreen', 'webkitRequestFullScreen', 'mozRequestFullScreen', 'msRequestFullscreen'],
+			exit: ['exitFullscreen', 'webkitExitFullscreen', 'webkitCancelFullScreen', 'mozCancelFullScreen', 'msExitFullscreen'],
+			enabled: ['fullscreenEnabled', 'webkitFullscreenEnabled', 'mozFullScreenEnabled', 'msFullscreenEnabled'],
+			element: ['fullscreenElement', 'webkitFullscreenElement', 'webkitCurrentFullScreenElement', 'mozFullScreenElement', 'msFullscreenElement'],
+			change: ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'],
+			error: ['fullscreenerror', 'webkitfullscreenerror', 'mozfullscreenerror', 'MSFullscreenError']
 		};
 
 		var properties = {};
