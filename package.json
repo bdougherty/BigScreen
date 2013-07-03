@@ -1,6 +1,6 @@
 {
 	"name": "BigScreen",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "A simple library for using the JavaScript Full Screen API.",
 	"keywords": [
 		"fullscreen"
@@ -14,7 +14,7 @@
 		"email": "hi@brad.is",
 		"url": "http://brad.is"
 	},
-	"repositories": {
+	"repository": {
 		"type": "git",
 		"url": "git@github.com:bdougherty/BigScreen.git"
 	},
@@ -26,6 +26,7 @@
 		"grunt": "0.4.x",
 		"grunt-contrib-concat": "0.3.x",
 		"grunt-contrib-jshint": "0.6.x",
-		"grunt-contrib-uglify": "0.2.x"
+		"grunt-contrib-uglify": "0.2.x",
+		"grunt-contrib-clean": "0.4.x"
 	}
 }

@@ -1,5 +1,5 @@
 /*! BigScreen
- * v2.0.1 - 2013-06-15
+ * v2.0.2 - 2013-07-03
  * https://github.com/bdougherty/BigScreen
  * Copyright 2013 Brad Dougherty; Apache 2.0 License
  */
@@ -9,12 +9,12 @@
     var fn = function() {
         var testElement = document.createElement("video");
         var browserProperties = {
-            request: [ "requestFullscreen", "webkitRequestFullscreen", "webkitRequestFullScreen", "mozRequestFullScreen" ],
-            exit: [ "exitFullscreen", "webkitExitFullscreen", "webkitCancelFullScreen", "mozCancelFullScreen" ],
-            enabled: [ "fullscreenEnabled", "webkitFullscreenEnabled", "mozFullScreenEnabled" ],
-            element: [ "fullscreenElement", "webkitFullscreenElement", "webkitCurrentFullScreenElement", "mozFullScreenElement" ],
-            change: [ "fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange" ],
-            error: [ "fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror" ]
+            request: [ "requestFullscreen", "webkitRequestFullscreen", "webkitRequestFullScreen", "mozRequestFullScreen", "msRequestFullscreen" ],
+            exit: [ "exitFullscreen", "webkitExitFullscreen", "webkitCancelFullScreen", "mozCancelFullScreen", "msExitFullscreen" ],
+            enabled: [ "fullscreenEnabled", "webkitFullscreenEnabled", "mozFullScreenEnabled", "msFullscreenEnabled" ],
+            element: [ "fullscreenElement", "webkitFullscreenElement", "webkitCurrentFullScreenElement", "mozFullScreenElement", "msFullscreenElement" ],
+            change: [ "fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange" ],
+            error: [ "fullscreenerror", "webkitfullscreenerror", "mozfullscreenerror", "MSFullscreenError" ]
         };
         var properties = {};
         for (var prop in browserProperties) {
@@ -43,6 +43,7 @@
     var hasControls = null;
     var emptyFunction = function() {};
     var elements = [];
+    var chromeAndroid = navigator.userAgent.indexOf("Android") > -1 && navigator.userAgent.indexOf("Chrome") > -1;
     function videoEnterFullscreen(element) {
         var videoElement = _getVideo(element);
         if (videoElement && videoElement.webkitEnterFullscreen) {
@@ -87,14 +88,14 @@
         if ((actualElement === lastElement.element || actualElement === lastVideoElement) && lastElement.hasEntered) {
             return;
         }
+        if (actualElement.tagName === "VIDEO") {
+            lastVideoElement = actualElement;
+        }
         if (elements.length === 1) {
             bigscreen.onenter(bigscreen.element);
         }
         lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
         lastElement.hasEntered = true;
-        if (actualElement.tagName === "VIDEO") {
-            lastVideoElement = actualElement;
-        }
     };
     var callOnExit = function() {
         if (lastVideoElement && !hasControls) {
@@ -136,6 +137,9 @@
                 return videoEnterFullscreen(element);
             }
             if (iframe && document[fn.enabled] === false) {
+                return videoEnterFullscreen(element);
+            }
+            if (chromeAndroid) {
                 return videoEnterFullscreen(element);
             }
             if (iframe && fn.enabled === undefined) {
@@ -210,6 +214,9 @@
                     if (fn.exit === "webkitCancelFullScreen" && !iframe) {
                         return true;
                     }
+                    if (chromeAndroid) {
+                        return false;
+                    }
                     return document[fn.enabled] || false;
                 }
             }
@@ -235,6 +242,12 @@
         }, false);
     }
     document.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
+        elements.push({
+            element: event.srcElement,
+            enter: emptyFunction,
+            exit: emptyFunction,
+            error: emptyFunction
+        });
         bigscreen.onchange(event.srcElement);
         callOnEnter(event.srcElement);
     }, true);

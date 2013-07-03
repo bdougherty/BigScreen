@@ -18,6 +18,7 @@ BigScreen is ~1.4 kb minified and gzipped. [Download it now](https://raw.github.
 * Chrome 15+
 * Firefox 10+
 * Safari 5.1+
+* Internet Explorer 11
 * Opera 12.1+
 * Firefox for Android 18+
 
@@ -25,7 +26,8 @@ These browsers are also supported for video only:
 
 * Safari 5.0
 * iOS 4.2+
-* Android 2.1+
+* Android Browser 2.1+
+* Chrome for Android
 
 (See [caniuse](http://caniuse.com/#feat=fullscreen) for always up-to-date info)
 
@@ -139,14 +141,6 @@ Safari 5.0 and iOS 4.2+ support putting `<video>` into full screen. `BigScreen.e
 
 This function will report `false` if there is no child `<video>`, or if it is not possible to put a `<video>` in full screen. It will report `'maybe'` if it is possible, but the video's metadata has not been loaded, and `true` if it will be able to enter full screen.
 
-
-## Version History
-
-* 2.0.1 - 06/15/2013 - Update to use `document.body` instead of `documentElement` and better detection of `<video>` going into full screen
-* 2.0.0 - 01/21/2013 - Add individual element callbacks and clean up error handling
-* 1.0.2 - 12/26/2012 - Use `webkitbeginfullscreen` and `webkitendfullscreen` on iOS instead of polling
-* 1.0.1 - 10/04/2012 - Fix for video controls bug in WebKit
-* 1.0.0 - 08/26/2012 - Initial Release
 
 ## Known Fullscreen API Issues
 
