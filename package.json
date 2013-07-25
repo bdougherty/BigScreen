@@ -1,14 +1,12 @@
 {
 	"name": "BigScreen",
 	"version": "2.0.2",
-	"description": "A simple library for using the JavaScript Full Screen API.",
+	"description": "A simple library for using the JavaScript Fullscreen API.",
 	"keywords": [
 		"fullscreen"
 	],
 	"homepage": "https://github.com/bdougherty/BigScreen",
-	"bugs": {
-		"web": "https://github.com/bdougherty/BigScreen/issues"
-	},
+	"bugs": "https://github.com/bdougherty/BigScreen/issues",
 	"author": {
 		"name": "Brad Dougherty",
 		"email": "hi@brad.is",
