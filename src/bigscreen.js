@@ -9,7 +9,7 @@
 		var testElement = document.createElement('video');
 		var browserProperties = {
 			request: ['requestFullscreen', 'webkitRequestFullscreen', 'webkitRequestFullScreen', 'mozRequestFullScreen', 'msRequestFullscreen'],
-			exit: ['exitFullscreen', 'webkitExitFullscreen', 'webkitCancelFullScreen', 'mozCancelFullScreen', 'msExitFullscreen'],
+			exit: ['exitFullscreen', 'webkitCancelFullScreen', 'webkitExitFullscreen', 'mozCancelFullScreen', 'msExitFullscreen'],
 			enabled: ['fullscreenEnabled', 'webkitFullscreenEnabled', 'mozFullScreenEnabled', 'msFullscreenEnabled'],
 			element: ['fullscreenElement', 'webkitFullscreenElement', 'webkitCurrentFullScreenElement', 'mozFullScreenElement', 'msFullscreenElement'],
 			change: ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'],
