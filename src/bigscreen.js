@@ -3,6 +3,7 @@
 	'use strict';
 
 	var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
+	var iOS7 = /i(Pad|Phone|Pod)/.test(navigator.userAgent) && parseInt(navigator.userAgent.replace(/^.*OS (\d+)_(\d+).*$/, '$1.$2'), 10) >= 7;
 
 	var fn = (function() {
 		var testElement = document.createElement('video');
@@ -138,8 +139,9 @@
 
 	var callOnExit = function() {
 		// Fix a bug present in some versions of WebKit that will show the native controls when
-		// exiting, even if they were not showing before.
-		if (lastVideoElement && !hasControls) {
+		// exiting, even if they were not showing before. In iOS 7, this actually causes the
+		// native controls to show up, although once they hide they stay hidden.
+		if (lastVideoElement && !hasControls && !iOS7) {
 			lastVideoElement.setAttribute('controls', 'controls');
 			lastVideoElement.removeAttribute('controls');
 		}
