@@ -1,16 +1,17 @@
 /*! BigScreen
- * v2.0.2 - 2013-07-03
+ * v2.0.3 - 2013-10-18
  * https://github.com/bdougherty/BigScreen
  * Copyright 2013 Brad Dougherty; Apache 2.0 License
  */
 (function(window, document, iframe) {
     "use strict";
     var keyboardAllowed = typeof Element !== "undefined" && "ALLOW_KEYBOARD_INPUT" in Element;
+    var iOS7 = /i(Pad|Phone|Pod)/.test(navigator.userAgent) && parseInt(navigator.userAgent.replace(/^.*OS (\d+)_(\d+).*$/, "$1.$2"), 10) >= 7;
     var fn = function() {
         var testElement = document.createElement("video");
         var browserProperties = {
             request: [ "requestFullscreen", "webkitRequestFullscreen", "webkitRequestFullScreen", "mozRequestFullScreen", "msRequestFullscreen" ],
-            exit: [ "exitFullscreen", "webkitExitFullscreen", "webkitCancelFullScreen", "mozCancelFullScreen", "msExitFullscreen" ],
+            exit: [ "exitFullscreen", "webkitCancelFullScreen", "webkitExitFullscreen", "mozCancelFullScreen", "msExitFullscreen" ],
             enabled: [ "fullscreenEnabled", "webkitFullscreenEnabled", "mozFullScreenEnabled", "msFullscreenEnabled" ],
             element: [ "fullscreenElement", "webkitFullscreenElement", "webkitCurrentFullScreenElement", "mozFullScreenElement", "msFullscreenElement" ],
             change: [ "fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange" ],
@@ -98,7 +99,7 @@
         lastElement.hasEntered = true;
     };
     var callOnExit = function() {
-        if (lastVideoElement && !hasControls) {
+        if (lastVideoElement && !hasControls && !iOS7) {
             lastVideoElement.setAttribute("controls", "controls");
             lastVideoElement.removeAttribute("controls");
         }

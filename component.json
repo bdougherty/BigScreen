@@ -2,7 +2,7 @@
 	"name": "BigScreen",
 	"repo": "bdougherty/bigscreen",
 	"description": "A simple library for using the JavaScript Fullscreen API.",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"keywords": ["fullscreen"],
 	"main": "bigscreen.js",
 	"scripts": ["bigscreen.js"],
