@@ -155,7 +155,7 @@ There is currently a bug in Safari (was in WebKit, but has been fixed and has be
 * [Using HTML5's Fullscreen API for Fun and Profit](http://sorcery.smugmug.com/2012/06/06/using-html5s-fullscreen-api-for-fun-and-profit/)
 * [screenfull.js](https://github.com/sindresorhus/screenfull.js)
 * [Using full-screen mode - MDN](https://developer.mozilla.org/en/DOM/Using_full-screen_mode)
-* [Fullscreen Specification - W3C](http://dvcs.w3.org/hg/fullscreen/raw-file/tip/Overview.html)
+* [Fullscreen API Standard](http://fullscreen.spec.whatwg.org)
 
 
 ## License
