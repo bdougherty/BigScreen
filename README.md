@@ -21,13 +21,14 @@ BigScreen is ~1.4 kb minified and gzipped. [Download it now](https://raw.github.
 * Internet Explorer 11
 * Opera 12.1+
 * Firefox for Android 18+
+* Chrome for Android 32
 
 These browsers are also supported for video only:
 
 * Safari 5.0
 * iOS 4.2+
 * Android Browser 2.1+
-* Chrome for Android
+* Chrome for Android < 32
 
 (See [caniuse](http://caniuse.com/#feat=fullscreen) for always up-to-date info)
 

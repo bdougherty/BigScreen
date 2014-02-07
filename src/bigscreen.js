@@ -53,7 +53,11 @@
 	var hasControls = null;
 	var emptyFunction = function() {};
 	var elements = [];
-	var chromeAndroid = navigator.userAgent.indexOf('Android') > -1 && navigator.userAgent.indexOf('Chrome') > -1;
+	var chromeAndroid = false;
+
+	if (navigator.userAgent.indexOf('Android') > -1 && navigator.userAgent.indexOf('Chrome') > -1) {
+		chromeAndroid = parseInt(navigator.userAgent.replace(/^.*Chrome\/(\d+).*$/, '$1'), 10) || true;
+	}
 
 	// Attempt to put a child video into full screen using webkitEnterFullscreen.
 	// The metadata must be loaded in order for it to work, so load it automatically
@@ -207,8 +211,8 @@
 				return videoEnterFullscreen(element);
 			}
 
-			// Chrome on Android reports that fullscreen is enabled, but it isn't really.
-			if (chromeAndroid) {
+			// Chrome on Android reports that fullscreen is enabled, but it isn't really on < 32.
+			if (chromeAndroid !== false && chromeAndroid < 32) {
 				return videoEnterFullscreen(element);
 			}
 
@@ -333,7 +337,7 @@
 					}
 
 					// Chrome on Android reports that fullscreen is enabled, but it isn't really.
-					if (chromeAndroid) {
+					if (chromeAndroid !== false && chromeAndroid < 32) {
 						return false;
 					}
 
