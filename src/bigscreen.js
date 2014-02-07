@@ -22,7 +22,7 @@
 		// in this browser.
 		for (var prop in browserProperties) {
 			for (var i = 0, length = browserProperties[prop].length; i < length; i++) {
-				if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || 'on' + browserProperties[prop][i] in document) {
+				if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || 'on' + browserProperties[prop][i].toLowerCase() in document) {
 					properties[prop] = browserProperties[prop][i];
 					break;
 				}
