@@ -1,7 +1,7 @@
 /*! BigScreen
- * v2.0.3 - 2013-10-18
+ * v2.0.4 - 2014-02-06
  * https://github.com/bdougherty/BigScreen
- * Copyright 2013 Brad Dougherty; Apache 2.0 License
+ * Copyright 2014 Brad Dougherty; Apache 2.0 License
  */
 (function(window, document, iframe) {
     "use strict";
@@ -20,7 +20,7 @@
         var properties = {};
         for (var prop in browserProperties) {
             for (var i = 0, length = browserProperties[prop].length; i < length; i++) {
-                if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || "on" + browserProperties[prop][i] in document) {
+                if (browserProperties[prop][i] in testElement || browserProperties[prop][i] in document || "on" + browserProperties[prop][i].toLowerCase() in document) {
                     properties[prop] = browserProperties[prop][i];
                     break;
                 }
@@ -44,7 +44,10 @@
     var hasControls = null;
     var emptyFunction = function() {};
     var elements = [];
-    var chromeAndroid = navigator.userAgent.indexOf("Android") > -1 && navigator.userAgent.indexOf("Chrome") > -1;
+    var chromeAndroid = false;
+    if (navigator.userAgent.indexOf("Android") > -1 && navigator.userAgent.indexOf("Chrome") > -1) {
+        chromeAndroid = parseInt(navigator.userAgent.replace(/^.*Chrome\/(\d+).*$/, "$1"), 10) || true;
+    }
     function videoEnterFullscreen(element) {
         var videoElement = _getVideo(element);
         if (videoElement && videoElement.webkitEnterFullscreen) {
@@ -140,7 +143,7 @@
             if (iframe && document[fn.enabled] === false) {
                 return videoEnterFullscreen(element);
             }
-            if (chromeAndroid) {
+            if (chromeAndroid !== false && chromeAndroid < 32) {
                 return videoEnterFullscreen(element);
             }
             if (iframe && fn.enabled === undefined) {
@@ -215,7 +218,7 @@
                     if (fn.exit === "webkitCancelFullScreen" && !iframe) {
                         return true;
                     }
-                    if (chromeAndroid) {
+                    if (chromeAndroid !== false && chromeAndroid < 32) {
                         return false;
                     }
                     return document[fn.enabled] || false;
