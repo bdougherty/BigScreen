@@ -375,25 +375,27 @@
 		}, false);
 	}
 
-	// Listen for the video-only fullscreen events. Only applies to mobile browsers.
-	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
-	// Use the capture phase because that seems to be the only way to get them.
-	document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
-		elements.push({
-			element: event.srcElement,
-			enter: emptyFunction,
-			exit: emptyFunction,
-			error: emptyFunction
-		});
+	if (document.addEventListener) {
+		// Listen for the video-only fullscreen events. Only applies to mobile browsers.
+		// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
+		// Use the capture phase because that seems to be the only way to get them.
+		document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
+			elements.push({
+				element: event.srcElement,
+				enter: emptyFunction,
+				exit: emptyFunction,
+				error: emptyFunction
+			});
 
-		bigscreen.onchange(event.srcElement);
-		callOnEnter(event.srcElement);
-	}, true);
+			bigscreen.onchange(event.srcElement);
+			callOnEnter(event.srcElement);
+		}, true);
 
-	document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
-		bigscreen.onchange(event.srcElement);
-		callOnExit(event.srcElement);
-	}, true);
+		document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
+			bigscreen.onchange(event.srcElement);
+			callOnExit(event.srcElement);
+		}, true);
+	};
 
 	// If there is a valid `fullscreenerror` event, set up the listener for it.
 	if (fn.error) {
