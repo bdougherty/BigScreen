@@ -373,7 +373,7 @@
 				callOnExit();
 			}
 		}, false);
-	}
+	};
 
 	// Listen for the video-only fullscreen events. Only applies to mobile browsers.
 	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
@@ -400,7 +400,7 @@
 		document.addEventListener(fn.error, function onFullscreenError(event) {
 			callOnError('not_allowed');
 		}, false);
-	}
+	};
 
 	// Externalize the BigScreen object. Use array notation to play nicer with
 	// Closure Compiler.
