@@ -379,12 +379,29 @@
 	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
 	// Use the capture phase because that seems to be the only way to get them.
 	document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
-		elements.push({
-			element: event.srcElement,
-			enter: emptyFunction,
-			exit: emptyFunction,
-			error: emptyFunction
-		});
+		var shouldPushElement = true;
+
+		// When BigScreen.request is called specifically, the element requested
+		// is already pushed onto the stack. If the video element belongs to an
+		// element on the stack, don't push it on here.
+		if (elements.length > 0) {
+			for (var i = 0, length = elements.length; i < length; i++) {
+				var video = _getVideo(elements[i].element);
+				if (video === event.srcElement) {
+					shouldPushElement = false;
+					break;
+				}
+			}
+		}
+
+		if (shouldPushElement) {
+			elements.push({
+				element: event.srcElement,
+				enter: emptyFunction,
+				exit: emptyFunction,
+				error: emptyFunction
+			});
+		}
 
 		bigscreen.onchange(event.srcElement);
 		callOnEnter(event.srcElement);
