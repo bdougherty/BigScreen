@@ -419,8 +419,20 @@
 		}, false);
 	}
 
-	// Externalize the BigScreen object. Use array notation to play nicer with
-	// Closure Compiler.
-	window['BigScreen'] = bigscreen;
+    // Externalize the AMD object
+    if (typeof define === 'function' && typeof define.amd === 'object') {
+        define(bigscreen);
+    }
 
+    // Externalize the CommonJS object. Use array notation to play nicer with
+    // Closure Compiler.
+    else if (typeof module !== 'undefined' && module.exports) {
+        module['exports'] = bigscreen;
+    }
+
+    // Externalize the BigScreen object. Use array notation to play nicer with
+    // Closure Compiler.
+    else {
+        window['BigScreen'] = bigscreen;
+    }
 }(window, document, self !== top));
