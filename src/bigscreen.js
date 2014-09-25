@@ -32,6 +32,43 @@
 		return properties;
 	}());
 
+	// Add allowed events
+	var EVENT = {
+		ENTER: 'enter',
+		EXIT: 'exit',
+		CHANGE: 'change',
+		ERROR: 'error'
+	};
+	var events = [];
+	var attachedEvents = {};
+
+	Object.keys(EVENT).forEach(function(key) {
+		events.push(EVENT[key]);
+		attachedEvents[EVENT[key]] = [];
+
+	});
+
+	function fire() {
+		var args = Array.prototype.slice.apply(arguments);
+		var event = args.shift();
+
+		attachedEvents[event].forEach(function(callback) {
+			if (typeof callback === 'function') {
+				callback.apply(callback, args);
+			}
+		});
+	}
+
+	function makeListener(fn) {
+		return function(type, handler) {
+			if (events.indexOf(type) === -1) {
+				return;
+			}
+
+			fn.call(this, type, handler);
+		};
+	}
+
 	// Find a child video in the element passed.
 	function _getVideo(element) {
 		var videoElement = null;
@@ -139,6 +176,8 @@
 		// again if there is a duplicate call (see above).
 		lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
 		lastElement.hasEntered = true;
+
+		fire(EVENT.ENTER, bigscreen.element);
 	};
 
 	var callOnExit = function() {
@@ -159,12 +198,14 @@
 		// time from the iframe resize hack.
 		if (element) {
 			element.exit.call(element.element);
+			fire(EVENT.EXIT, element.element);
 
 			// When the browser has fully exited full screen, make sure to loop
 			// through and call the rest of the callbacks and then the global exit.
 			if (!bigscreen.element) {
 				elements.forEach(function(element) {
 					element.exit.call(element.element);
+					fire(EVENT.EXIT, element.element);
 				});
 				elements = [];
 
@@ -182,6 +223,7 @@
 
 			obj.error.call(element, reason);
 			bigscreen.onerror(element, reason);
+			fire(EVENT.ERROR, element, reason);
 		}
 	};
 
@@ -301,6 +343,18 @@
 			return video.readyState < video.HAVE_METADATA ? 'maybe' : video.webkitSupportsFullscreen;
 		},
 
+		on: makeListener(function(type, callback) {
+			attachedEvents[type].push(callback);
+		}),
+
+		off: makeListener(function(type, callback) {
+			var index = attachedEvents[type].indexOf(callback);
+
+			if (index > -1) {
+				attachedEvents[type].splice(index, 1);
+			}
+		}),
+
 		// ### onenter, onexit, onchange, onerror
 		// Populate the global handlers with empty functions.
 		onenter: emptyFunction,
@@ -356,6 +410,7 @@
 	if (fn.change) {
 		document.addEventListener(fn.change, function onFullscreenChange(event) {
 			bigscreen.onchange(bigscreen.element);
+			fire(EVENT.CHANGE, bigscreen.element);
 
 			if (bigscreen.element) {
 				// This should be treated an exit if the element that is in full screen
@@ -404,11 +459,13 @@
 		}
 
 		bigscreen.onchange(event.srcElement);
+		fire(EVENT.CHANGE, bigscreen.srcElement);
 		callOnEnter(event.srcElement);
 	}, true);
 
 	document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
 		bigscreen.onchange(event.srcElement);
+		fire(EVENT.CHANGE, event.srcElement);
 		callOnExit(event.srcElement);
 	}, true);
 
