@@ -1,5 +1,5 @@
 /*! BigScreen
- * v2.0.4 - 2014-02-06
+ * v2.1.0 - 2014-09-30
  * https://github.com/bdougherty/BigScreen
  * Copyright 2014 Brad Dougherty; Apache 2.0 License
  */
@@ -28,6 +28,35 @@
         }
         return properties;
     }();
+    var EVENT = {
+        ENTER: "enter",
+        EXIT: "exit",
+        CHANGE: "change",
+        ERROR: "error"
+    };
+    var events = [];
+    var attachedEvents = {};
+    Object.keys(EVENT).forEach(function(key) {
+        events.push(EVENT[key]);
+        attachedEvents[EVENT[key]] = [];
+    });
+    function fire() {
+        var args = Array.prototype.slice.apply(arguments);
+        var event = args.shift();
+        attachedEvents[event].forEach(function(callback) {
+            if (typeof callback === "function") {
+                callback.apply(callback, args);
+            }
+        });
+    }
+    function makeListener(fn) {
+        return function(type, handler) {
+            if (events.indexOf(type) === -1) {
+                return;
+            }
+            fn.call(this, type, handler);
+        };
+    }
     function _getVideo(element) {
         var videoElement = null;
         if (element.tagName === "VIDEO") {
@@ -89,6 +118,9 @@
     }
     var callOnEnter = function(actualElement) {
         var lastElement = elements[elements.length - 1];
+        if (lastElement) {
+            return;
+        }
         if ((actualElement === lastElement.element || actualElement === lastVideoElement) && lastElement.hasEntered) {
             return;
         }
@@ -100,6 +132,7 @@
         }
         lastElement.enter.call(lastElement.element, actualElement || lastElement.element);
         lastElement.hasEntered = true;
+        fire(EVENT.ENTER, bigscreen.element);
     };
     var callOnExit = function() {
         if (lastVideoElement && !hasControls && !iOS7) {
@@ -111,9 +144,11 @@
         var element = elements.pop();
         if (element) {
             element.exit.call(element.element);
+            fire(EVENT.EXIT, element.element);
             if (!bigscreen.element) {
                 elements.forEach(function(element) {
                     element.exit.call(element.element);
+                    fire(EVENT.EXIT, element.element);
                 });
                 elements = [];
                 bigscreen.onexit();
@@ -126,6 +161,7 @@
             element = element || obj.element;
             obj.error.call(element, reason);
             bigscreen.onerror(element, reason);
+            fire(EVENT.ERROR, element, reason);
         }
     };
     var bigscreen = {
@@ -196,6 +232,15 @@
             }
             return video.readyState < video.HAVE_METADATA ? "maybe" : video.webkitSupportsFullscreen;
         },
+        on: makeListener(function(type, callback) {
+            attachedEvents[type].push(callback);
+        }),
+        off: makeListener(function(type, callback) {
+            var index = attachedEvents[type].indexOf(callback);
+            if (index > -1) {
+                attachedEvents[type].splice(index, 1);
+            }
+        }),
         onenter: emptyFunction,
         onexit: emptyFunction,
         onchange: emptyFunction,
@@ -232,6 +277,7 @@
     if (fn.change) {
         document.addEventListener(fn.change, function onFullscreenChange(event) {
             bigscreen.onchange(bigscreen.element);
+            fire(EVENT.CHANGE, bigscreen.element);
             if (bigscreen.element) {
                 var previousElement = elements[elements.length - 2];
                 if (previousElement && previousElement.element === bigscreen.element) {
@@ -246,17 +292,31 @@
         }, false);
     }
     document.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
-        elements.push({
-            element: event.srcElement,
-            enter: emptyFunction,
-            exit: emptyFunction,
-            error: emptyFunction
-        });
+        var shouldPushElement = true;
+        if (elements.length > 0) {
+            for (var i = 0, length = elements.length; i < length; i++) {
+                var video = _getVideo(elements[i].element);
+                if (video === event.srcElement) {
+                    shouldPushElement = false;
+                    break;
+                }
+            }
+        }
+        if (shouldPushElement) {
+            elements.push({
+                element: event.srcElement,
+                enter: emptyFunction,
+                exit: emptyFunction,
+                error: emptyFunction
+            });
+        }
         bigscreen.onchange(event.srcElement);
+        fire(EVENT.CHANGE, bigscreen.srcElement);
         callOnEnter(event.srcElement);
     }, true);
     document.addEventListener("webkitendfullscreen", function onEndFullscreen(event) {
         bigscreen.onchange(event.srcElement);
+        fire(EVENT.CHANGE, event.srcElement);
         callOnExit(event.srcElement);
     }, true);
     if (fn.error) {
