@@ -158,6 +158,11 @@
 		// browser will fire 2 `webkitfullscreenchange` events when entering full screen from inside an
 		// iframe. This is the result of the same bug as the resizeExitHack.
 		var lastElement = elements[elements.length - 1];
+
+		if (lastElement) {
+			return;
+		}
+
 		if ((actualElement === lastElement.element || actualElement === lastVideoElement) && lastElement.hasEntered) {
 			return;
 		}
