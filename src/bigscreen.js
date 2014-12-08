@@ -2,7 +2,6 @@
 (function(window, document, iframe) {
 	'use strict';
 
-	var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
 	var iOS7 = /i(Pad|Phone|Pod)/.test(navigator.userAgent) && parseInt(navigator.userAgent.replace(/^.*OS (\d+)_(\d+).*$/, '$1.$2'), 10) >= 7;
 
 	var fn = (function() {
@@ -241,15 +240,7 @@
 			}
 
 			try {
-				// Safari 5.1 doesn't actually support asking for keyboard support,
-				// so don't try it. The alternative is to add another `setTimeout`
-				// below, which isn't nice.
-				if (/5\.1[\.\d]* Safari/.test(navigator.userAgent)) {
-					element[fn.request]();
-				}
-				else {
-					element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
-				}
+				element[fn.request]();
 
 				// If there's no element after 100ms, it didn't work. This check is for Safari 5.1
 				// which fails to fire a `webkitfullscreenerror` if the request wasn't from a user
