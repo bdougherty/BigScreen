@@ -1,5 +1,5 @@
 {
-  "name": "BigScreen",
+  "name": "bigscreen",
   "version": "2.0.5",
   "description": "A simple library for using the JavaScript Fullscreen API.",
   "author": "Brad Dougherty <me@brad.is>",

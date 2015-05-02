@@ -1,5 +1,5 @@
 {
-  "name": "BigScreen",
+  "name": "bigscreen",
   "description": "A simple library for using the JavaScript Fullscreen API.",
   "main": "bigscreen.min.js",
   "moduleType": [
