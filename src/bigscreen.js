@@ -344,78 +344,78 @@
 				}
 			}
 		});
+
+		// If there is a valid `fullscreenchange` event, set up the listener for it.
+		if (fn.change) {
+			document.addEventListener(fn.change, function onFullscreenChange(event) {
+				bigscreen.onchange(bigscreen.element);
+
+				if (bigscreen.element) {
+					// This should be treated an exit if the element that is in full screen
+					// is the previous element in our stack.
+					var previousElement = elements[elements.length - 2];
+					if (previousElement && previousElement.element === bigscreen.element) {
+						callOnExit();
+					}
+					else {
+						callOnEnter(bigscreen.element);
+						addWindowResizeHack();
+					}
+				}
+				else {
+					callOnExit();
+				}
+			}, false);
+		}
+
+		// Listen for the video-only fullscreen events. Only applies to mobile browsers.
+		// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
+		// Use the capture phase because that seems to be the only way to get them.
+		document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
+			var shouldPushElement = true;
+
+			// When BigScreen.request is called specifically, the element requested
+			// is already pushed onto the stack. If the video element belongs to an
+			// element on the stack, don't push it on here.
+			if (elements.length > 0) {
+				for (var i = 0, length = elements.length; i < length; i++) {
+					var video = _getVideo(elements[i].element);
+					if (video === event.srcElement) {
+						shouldPushElement = false;
+						break;
+					}
+				}
+			}
+
+			if (shouldPushElement) {
+				elements.push({
+					element: event.srcElement,
+					enter: emptyFunction,
+					exit: emptyFunction,
+					error: emptyFunction
+				});
+			}
+
+			bigscreen.onchange(event.srcElement);
+			callOnEnter(event.srcElement);
+		}, true);
+
+		document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
+			bigscreen.onchange(event.srcElement);
+			callOnExit(event.srcElement);
+		}, true);
+
+		// If there is a valid `fullscreenerror` event, set up the listener for it.
+		if (fn.error) {
+			document.addEventListener(fn.error, function onFullscreenError(event) {
+				callOnError('not_allowed');
+			}, false);
+		}
 	}
 	// If the define fails, set them to `null` and `false`, respectively.
 	catch (err) {
 		bigscreen.element = null;
 		bigscreen.enabled = false;
-	}
-
-	// If there is a valid `fullscreenchange` event, set up the listener for it.
-	if (fn.change) {
-		document.addEventListener(fn.change, function onFullscreenChange(event) {
-			bigscreen.onchange(bigscreen.element);
-
-			if (bigscreen.element) {
-				// This should be treated an exit if the element that is in full screen
-				// is the previous element in our stack.
-				var previousElement = elements[elements.length - 2];
-				if (previousElement && previousElement.element === bigscreen.element) {
-					callOnExit();
-				}
-				else {
-					callOnEnter(bigscreen.element);
-					addWindowResizeHack();
-				}
-			}
-			else {
-				callOnExit();
-			}
-		}, false);
-	}
-
-	// Listen for the video-only fullscreen events. Only applies to mobile browsers.
-	// Desktop Safari and Chrome will fire the normal `fullscreenchange` event instead.
-	// Use the capture phase because that seems to be the only way to get them.
-	document.addEventListener('webkitbeginfullscreen', function onBeginFullscreen(event) {
-		var shouldPushElement = true;
-
-		// When BigScreen.request is called specifically, the element requested
-		// is already pushed onto the stack. If the video element belongs to an
-		// element on the stack, don't push it on here.
-		if (elements.length > 0) {
-			for (var i = 0, length = elements.length; i < length; i++) {
-				var video = _getVideo(elements[i].element);
-				if (video === event.srcElement) {
-					shouldPushElement = false;
-					break;
-				}
-			}
-		}
-
-		if (shouldPushElement) {
-			elements.push({
-				element: event.srcElement,
-				enter: emptyFunction,
-				exit: emptyFunction,
-				error: emptyFunction
-			});
-		}
-
-		bigscreen.onchange(event.srcElement);
-		callOnEnter(event.srcElement);
-	}, true);
-
-	document.addEventListener('webkitendfullscreen', function onEndFullscreen(event) {
-		bigscreen.onchange(event.srcElement);
-		callOnExit(event.srcElement);
-	}, true);
-
-	// If there is a valid `fullscreenerror` event, set up the listener for it.
-	if (fn.error) {
-		document.addEventListener(fn.error, function onFullscreenError(event) {
-			callOnError('not_allowed');
-		}, false);
 	}
 
 	/* eslint-disable no-undef */
