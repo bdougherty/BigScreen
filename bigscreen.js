@@ -1,11 +1,10 @@
 /*! BigScreen
- * v2.0.4 - 2014-02-06
- * https://github.com/bdougherty/BigScreen
- * Copyright 2014 Brad Dougherty; Apache 2.0 License
+ * v2.0.5 - 2015-05-02
+ * 
+ * Copyright 2015 Brad Dougherty <me@brad.is>; MIT License
  */
-(function(window, document, iframe) {
+(function(root, document, iframe) {
     "use strict";
-    var keyboardAllowed = typeof Element !== "undefined" && "ALLOW_KEYBOARD_INPUT" in Element;
     var iOS7 = /i(Pad|Phone|Pod)/.test(navigator.userAgent) && parseInt(navigator.userAgent.replace(/^.*OS (\d+)_(\d+).*$/, "$1.$2"), 10) >= 7;
     var fn = function() {
         var testElement = document.createElement("video");
@@ -89,6 +88,9 @@
     }
     var callOnEnter = function(actualElement) {
         var lastElement = elements[elements.length - 1];
+        if (!lastElement) {
+            return;
+        }
         if ((actualElement === lastElement.element || actualElement === lastVideoElement) && lastElement.hasEntered) {
             return;
         }
@@ -112,8 +114,8 @@
         if (element) {
             element.exit.call(element.element);
             if (!bigscreen.element) {
-                elements.forEach(function(element) {
-                    element.exit.call(element.element);
+                elements.forEach(function(el) {
+                    el.exit.call(el.element);
                 });
                 elements = [];
                 bigscreen.onexit();
@@ -138,13 +140,16 @@
                 error: errorCallback || emptyFunction
             });
             if (fn.request === undefined) {
-                return videoEnterFullscreen(element);
+                videoEnterFullscreen(element);
+                return;
             }
             if (iframe && document[fn.enabled] === false) {
-                return videoEnterFullscreen(element);
+                videoEnterFullscreen(element);
+                return;
             }
             if (chromeAndroid !== false && chromeAndroid < 32) {
-                return videoEnterFullscreen(element);
+                videoEnterFullscreen(element);
+                return;
             }
             if (iframe && fn.enabled === undefined) {
                 fn.enabled = "webkitFullscreenEnabled";
@@ -160,11 +165,7 @@
                 return;
             }
             try {
-                if (/5\.1[\.\d]* Safari/.test(navigator.userAgent)) {
-                    element[fn.request]();
-                } else {
-                    element[fn.request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
-                }
+                element[fn.request]();
                 setTimeout(function() {
                     if (!document[fn.element]) {
                         callOnError(iframe ? "not_enabled" : "not_allowed", element);
@@ -225,44 +226,64 @@
                 }
             }
         });
+        if (fn.change) {
+            document.addEventListener(fn.change, function onFullscreenChange(event) {
+                bigscreen.onchange(bigscreen.element);
+                if (bigscreen.element) {
+                    var previousElement = elements[elements.length - 2];
+                    if (previousElement && previousElement.element === bigscreen.element) {
+                        callOnExit();
+                    } else {
+                        callOnEnter(bigscreen.element);
+                        addWindowResizeHack();
+                    }
+                } else {
+                    callOnExit();
+                }
+            }, false);
+        }
+        document.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
+            var shouldPushElement = true;
+            if (elements.length > 0) {
+                for (var i = 0, length = elements.length; i < length; i++) {
+                    var video = _getVideo(elements[i].element);
+                    if (video === event.srcElement) {
+                        shouldPushElement = false;
+                        break;
+                    }
+                }
+            }
+            if (shouldPushElement) {
+                elements.push({
+                    element: event.srcElement,
+                    enter: emptyFunction,
+                    exit: emptyFunction,
+                    error: emptyFunction
+                });
+            }
+            bigscreen.onchange(event.srcElement);
+            callOnEnter(event.srcElement);
+        }, true);
+        document.addEventListener("webkitendfullscreen", function onEndFullscreen(event) {
+            bigscreen.onchange(event.srcElement);
+            callOnExit(event.srcElement);
+        }, true);
+        if (fn.error) {
+            document.addEventListener(fn.error, function onFullscreenError(event) {
+                callOnError("not_allowed");
+            }, false);
+        }
     } catch (err) {
         bigscreen.element = null;
         bigscreen.enabled = false;
     }
-    if (fn.change) {
-        document.addEventListener(fn.change, function onFullscreenChange(event) {
-            bigscreen.onchange(bigscreen.element);
-            if (bigscreen.element) {
-                var previousElement = elements[elements.length - 2];
-                if (previousElement && previousElement.element === bigscreen.element) {
-                    callOnExit();
-                } else {
-                    callOnEnter(bigscreen.element);
-                    addWindowResizeHack();
-                }
-            } else {
-                callOnExit();
-            }
-        }, false);
-    }
-    document.addEventListener("webkitbeginfullscreen", function onBeginFullscreen(event) {
-        elements.push({
-            element: event.srcElement,
-            enter: emptyFunction,
-            exit: emptyFunction,
-            error: emptyFunction
+    if (typeof define === "function" && define.amd) {
+        define(function() {
+            return bigscreen;
         });
-        bigscreen.onchange(event.srcElement);
-        callOnEnter(event.srcElement);
-    }, true);
-    document.addEventListener("webkitendfullscreen", function onEndFullscreen(event) {
-        bigscreen.onchange(event.srcElement);
-        callOnExit(event.srcElement);
-    }, true);
-    if (fn.error) {
-        document.addEventListener(fn.error, function onFullscreenError(event) {
-            callOnError("not_allowed");
-        }, false);
+    } else if (typeof module !== "undefined" && module.exports) {
+        module.exports = bigscreen;
+    } else {
+        root.BigScreen = bigscreen;
     }
-    window["BigScreen"] = bigscreen;
-})(window, document, self !== top);
+})(this, document, self !== top);
