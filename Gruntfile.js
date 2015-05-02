@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 		uglify: {
 			unminified: {
 				options: {
-					banner: '/*! <%= pkg.name %>\n * v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n * <%= pkg.homepage %>\n * Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>; <%= pkg.license %> License\n */\n',
+					banner: '/*! <%= pkg.name %>\n * v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n * <%= pkg.homepage %>\n * Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author %>; <%= pkg.license %> License\n */\n',
 					mangle: false,
 					compress: false,
 					preserveComments: 'some',
