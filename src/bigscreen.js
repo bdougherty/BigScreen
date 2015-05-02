@@ -1,5 +1,5 @@
 // A library to make it easier to use the JavaScript Fullscreen API.
-(function(window, document, iframe) {
+(function(root, document, iframe) {
 	'use strict';
 
 	var iOS7 = /i(Pad|Phone|Pod)/.test(navigator.userAgent) && parseInt(navigator.userAgent.replace(/^.*OS (\d+)_(\d+).*$/, '$1.$2'), 10) >= 7;
@@ -418,8 +418,18 @@
 		}, false);
 	}
 
-	// Externalize the BigScreen object. Use array notation to play nicer with
-	// Closure Compiler.
-	window['BigScreen'] = bigscreen;
+	/* eslint-disable no-undef */
+	if (typeof define === 'function' && define.amd) {
+		define(function() {
+			return bigscreen;
+		});
+	}
+	else if (typeof module !== 'undefined' && module.exports) {
+		module.exports = bigscreen;
+	}
+	else {
+		root.BigScreen = bigscreen;
+	}
+	/* eslint-enable no-undef */
 
-}(window, document, self !== top));
+}(this, document, self !== top));
