@@ -167,8 +167,8 @@
 			// When the browser has fully exited full screen, make sure to loop
 			// through and call the rest of the callbacks and then the global exit.
 			if (!bigscreen.element) {
-				elements.forEach(function(element) {
-					element.exit.call(element.element);
+				elements.forEach(function(el) {
+					el.exit.call(el.element);
 				});
 				elements = [];
 
@@ -207,17 +207,20 @@
 			// Browsers that don't support full screen at all will also go through this,
 			// but they will fire an error.
 			if (fn.request === undefined) {
-				return videoEnterFullscreen(element);
+				videoEnterFullscreen(element);
+				return;
 			}
 
 			// `document.fullscreenEnabled` defined, but is `false`, so try a video if there is one.
 			if (iframe && document[fn.enabled] === false) {
-				return videoEnterFullscreen(element);
+				videoEnterFullscreen(element);
+				return;
 			}
 
 			// Chrome on Android reports that fullscreen is enabled, but it isn't really on < 32.
 			if (chromeAndroid !== false && chromeAndroid < 32) {
-				return videoEnterFullscreen(element);
+				videoEnterFullscreen(element);
+				return;
 			}
 
 			// If we're in an iframe, it needs to have the `allowfullscreen` attribute in order for element full screen

@@ -1,0 +1,11 @@
+{
+	"env": {
+	    "browser": true
+	},
+	"rules": {
+		"no-underscore-dangle": 0,
+		"no-unused-vars": [1, { "vars": "local", "args": "none" }],
+		"no-use-before-define": [1, "nofunc"],
+		"quotes": [2, "single", "avoid-escape"]
+	}
+}
