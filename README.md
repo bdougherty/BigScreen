@@ -1,4 +1,4 @@
-# BigScreen [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bdougherty/BigScreen)
+# BigScreen [![npm version](https://badge.fury.io/js/bigscreen.svg)](https://badge.fury.io/js/bigscreen) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bdougherty/BigScreen)
 
 A simple library for using the JavaScript Fullscreen API.
 
