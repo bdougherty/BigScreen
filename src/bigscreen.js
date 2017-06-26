@@ -181,7 +181,7 @@
 	// an error occurs.
 	var callOnError = function(reason, element) {
 		if (elements.length > 0) {
-			var obj = elements.pop();
+			var obj = elements[0];
 			element = element || obj.element;
 
 			obj.error.call(element, reason);
