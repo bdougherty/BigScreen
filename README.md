@@ -1,4 +1,4 @@
-# BigScreen [![npm](https://img.shields.io/npm/v/bigscreen.svg?maxAge=2592000)](https://www.npmjs.com/package/bigscreen) [![Gitter](https://badges.gitter.im/bdougherty/BigScreen.svg)](https://gitter.im/bdougherty/BigScreen)
+# BigScreen [![npm](https://img.shields.io/npm/v/bigscreen.svg?maxAge=2592000)](https://www.npmjs.com/package/bigscreen)
 
 A simple library for using the JavaScript Fullscreen API.
 
